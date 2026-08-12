@@ -1,0 +1,6 @@
+n<=70: tested=248 hold=170 mismatches=0
+n<=80: tested=574 hold=438 mismatches=0
+n<=90: tested=910 hold=675 mismatches=0
+n<=100: tested=1190 hold=846 mismatches=0
+n<=110: tested=1718 hold=1305 mismatches=0
+DONE range 61..115: tested=1921 hold=1461 MISMATCHES=0

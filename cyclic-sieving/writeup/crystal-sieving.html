@@ -1,0 +1,457 @@
+<title>A Crystallographic Restriction for Cyclic Sieving</title>
+<style>
+  :root{
+    --ground:#f5f7f5; --surface:#ffffff; --sunk:#eef1ee;
+    --ink:#12181b; --ink-soft:#3a474a; --muted:#63757a;
+    --rule:#dde3df; --rule-strong:#c3cec8;
+    --azurite:#1a6598; --malachite:#2a7355; --oxide:#a24d2b;
+    --azurite-wash:#e4eef5; --oxide-wash:#f6e7e0;
+    --serif: "Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --mono: ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#0c1113; --surface:#141b1d; --sunk:#101718;
+      --ink:#e7ecea; --ink-soft:#c2cdcb; --muted:#8fa1a3;
+      --rule:#25302f; --rule-strong:#374442;
+      --azurite:#68b0dc; --malachite:#69bd97; --oxide:#dd9068;
+      --azurite-wash:#152932; --oxide-wash:#2c1d16;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0c1113; --surface:#141b1d; --sunk:#101718;
+    --ink:#e7ecea; --ink-soft:#c2cdcb; --muted:#8fa1a3;
+    --rule:#25302f; --rule-strong:#374442;
+    --azurite:#68b0dc; --malachite:#69bd97; --oxide:#dd9068;
+    --azurite-wash:#152932; --oxide-wash:#2c1d16;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--ground); color:var(--ink);
+    font-family:var(--serif); font-size:18px; line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1000px;margin:0 auto;padding:0 24px 96px}
+  .col{max-width:660px;margin:0 auto}
+  p,ul,ol{margin:0 0 1.05em}
+  h1,h2,h3{text-wrap:balance;margin:0}
+  a{color:var(--azurite)}
+  a:focus-visible,summary:focus-visible{outline:2px solid var(--azurite);outline-offset:3px;border-radius:2px}
+
+  /* ---- masthead ---- */
+  header{padding:72px 0 40px;border-bottom:1px solid var(--rule)}
+  .eyebrow{
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 22px
+  }
+  h1{font-size:clamp(34px,5.6vw,56px);line-height:1.06;letter-spacing:-.015em;font-weight:600}
+  h1 em{font-style:italic;color:var(--azurite)}
+  .standfirst{font-size:20px;line-height:1.55;color:var(--ink-soft);margin-top:22px}
+  .byline{
+    margin-top:26px;font-family:var(--mono);font-size:12px;color:var(--muted);
+    display:flex;flex-wrap:wrap;gap:8px 20px
+  }
+
+  /* ---- sections ---- */
+  section{padding-top:46px}
+  h2{
+    font-size:13px;font-family:var(--mono);letter-spacing:.16em;text-transform:uppercase;
+    color:var(--malachite);font-weight:600;margin-bottom:16px;
+    padding-bottom:8px;border-bottom:1px solid var(--rule)
+  }
+  h3{font-size:21px;margin:28px 0 8px;font-weight:600;letter-spacing:-.005em}
+
+  .lead{font-size:19.5px}
+  .fm{font-family:var(--mono);font-size:.92em;background:var(--sunk);
+      padding:1px 5px;border-radius:3px;border:1px solid var(--rule)}
+  .term{font-style:italic}
+
+  /* ---- display equation ---- */
+  .eq{
+    background:var(--surface);border:1px solid var(--rule);border-radius:4px;
+    padding:20px 22px;margin:22px 0;overflow-x:auto;
+    font-family:var(--mono);font-size:15px;line-height:1.85;color:var(--ink)
+  }
+  .eq .note{color:var(--muted)}
+
+  /* ---- theorem ---- */
+  .thm{
+    background:var(--surface);border:1px solid var(--rule-strong);
+    border-left:3px solid var(--azurite);border-radius:3px;
+    padding:26px 28px;margin:28px 0
+  }
+  .thm .label{
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--azurite);margin-bottom:12px
+  }
+  .thm p:last-child{margin-bottom:0}
+  .thm ol{margin:.6em 0 0;padding-left:1.3em}
+  .thm li{margin-bottom:.3em}
+
+  .aside{
+    border-left:2px solid var(--rule-strong);padding:2px 0 2px 18px;margin:24px 0;
+    color:var(--ink-soft);font-size:17px
+  }
+  blockquote{
+    margin:22px 0;padding:2px 0 2px 20px;border-left:2px solid var(--oxide);
+    font-style:italic;color:var(--ink-soft)
+  }
+  blockquote cite{display:block;font-style:normal;font-family:var(--mono);
+    font-size:11.5px;letter-spacing:.06em;color:var(--muted);margin-top:10px}
+
+  /* ---- figures ---- */
+  figure{margin:38px 0}
+  figcaption{
+    font-family:var(--mono);font-size:11.5px;line-height:1.6;color:var(--muted);
+    margin-top:14px;letter-spacing:.02em
+  }
+  .wide{max-width:none}
+
+  /* ---- symmetry strip ---- */
+  .orders{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-start}
+  .order{
+    flex:1 1 96px;min-width:88px;background:var(--surface);border:1px solid var(--rule);
+    border-radius:3px;padding:14px 10px 10px;text-align:center
+  }
+  .order.no{background:var(--oxide-wash);border-color:var(--oxide)}
+  .order.yes{background:var(--azurite-wash);border-color:var(--azurite)}
+  .order svg{display:block;margin:0 auto 8px}
+  .order .n{font-family:var(--mono);font-size:16px;font-weight:600}
+  .order .v{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);margin-top:2px}
+
+  /* ---- grid table ---- */
+  .tablebox{overflow-x:auto;border:1px solid var(--rule);border-radius:4px;background:var(--surface)}
+  table{border-collapse:collapse;font-family:var(--mono);font-size:13px;
+        font-variant-numeric:tabular-nums;width:100%;min-width:520px}
+  caption{caption-side:top;text-align:left;padding:14px 16px 10px;color:var(--muted);
+          font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase}
+  th,td{padding:7px 10px;text-align:center;border-top:1px solid var(--rule)}
+  thead th{color:var(--muted);font-weight:500;border-top:none;
+           font-size:11.5px;letter-spacing:.08em}
+  tbody th{color:var(--muted);font-weight:500;text-align:right;padding-right:14px}
+  td.y{background:var(--azurite-wash);color:var(--azurite);font-weight:600}
+  td.n{color:var(--muted);opacity:.55}
+
+  /* ---- evidence ---- */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
+         background:var(--rule);border:1px solid var(--rule);border-radius:4px;overflow:hidden}
+  .stat{background:var(--surface);padding:18px 16px}
+  .stat .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+           color:var(--muted);margin-bottom:8px}
+  .stat .v{font-size:26px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .stat .v.ok{color:var(--malachite)}
+
+  /* ---- ledger ---- */
+  .ledger{border-top:1px solid var(--rule)}
+  .ledger .row{display:grid;grid-template-columns:104px 1fr;gap:18px;
+               padding:16px 0;border-bottom:1px solid var(--rule);align-items:baseline}
+  .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase}
+  .tag.new{color:var(--malachite)}
+  .tag.old{color:var(--oxide)}
+  .tag.open{color:var(--azurite)}
+  .ledger p{margin:0;font-size:16.5px;color:var(--ink-soft)}
+  .ledger strong{color:var(--ink);font-weight:600}
+
+  footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--rule);
+         font-family:var(--mono);font-size:12px;color:var(--muted);line-height:1.8}
+
+  @media (max-width:640px){
+    body{font-size:17px}
+    .ledger .row{grid-template-columns:1fr;gap:6px}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="col">
+    <p class="eyebrow">Combinatorics · cyclic sieving · a new criterion</p>
+    <h1>The crystallographic restriction, hiding in a <em>necklace</em></h1>
+    <p class="standfirst">Ask when a q-binomial evaluated at a root of unity counts the necklaces a
+      multiplier leaves fixed, and the answer turns out to be the list 1, 2, 3, 4, 6 — the same five
+      numbers that forbid five-fold symmetry in a crystal.</p>
+    <div class="byline">
+      <span>Result: new</span><span>Status: proved lemma + derived necessity; criterion verified exhaustively</span>
+    </div>
+  </div>
+</header>
+
+<div class="col">
+
+<section>
+  <h2>The root of it</h2>
+  <p class="lead">Loop a string and you have made a circle act on it. Everything that follows is a
+    consequence of one fact: the characters of a cyclic group are <em>roots of unity</em>. That is why
+    counting necklaces, counting irreducible polynomials, counting periodic orbits, and the Euler
+    product are all the same identity wearing different clothes.</p>
+  <p>The sharpest modern expression of it is the <span class="term">cyclic sieving phenomenon</span>
+    (Reiner–Stanton–White): a set <span class="fm">X</span> with a cyclic action, and a polynomial
+    <span class="fm">X(q)</span> counting <span class="fm">X</span> at <span class="fm">q=1</span>, such
+    that plugging a root of unity into <span class="fm">X(q)</span> counts exactly the elements the
+    corresponding rotation fixes. The polynomial secretly knows the symmetry.</p>
+  <p>This page is one new theorem in that world. I went looking for a place nobody had looped a string
+    before; I found one, and what was waiting there was the crystallographic restriction.</p>
+</section>
+
+<section>
+  <h2>The object</h2>
+  <p>Fix <span class="fm">n</span> and colour the positions <span class="fm">Z/n</span> with two
+    colours, <span class="fm">k</span> of them black. Quotient by rotation: these are
+    <span class="term">necklaces</span>. There are <span class="fm">C(n,k)/n</span> of them when
+    <span class="fm">gcd(n,k)=1</span>, and the natural q-analogue is</p>
+  <div class="eq">Y(q) &nbsp;=&nbsp; [ n choose k ]<sub>q</sub> &nbsp;/&nbsp; [n]<sub>q</sub>
+    <span class="note">&nbsp;&nbsp;— a polynomial exactly when gcd(n,k)=1</span></div>
+  <p>Rotation itself now acts trivially, so it is not the interesting symmetry. What still acts is the
+    <span class="term">multiplier</span> group: for a unit <span class="fm">v</span> modulo
+    <span class="fm">n</span>, relabel positions by <span class="fm">x ↦ vx</span>. Group-theoretically
+    these are precisely the symmetries in the normaliser of the rotation group — the affine group
+    <span class="fm">Z/n ⋊ (Z/n)<sup>×</sup></span>. Geometrically, rotation spins the necklace;
+    a multiplier <em>rewires</em> it.</p>
+  <p>The question: does <span class="fm">Y(q)</span> sieve <em>that</em> action?</p>
+</section>
+
+<section>
+  <h2>What was known — and what was left open</h2>
+  <p>For <span class="fm">n</span> prime, yes, always: this is a corollary in Eric Stucky's
+    <em>Parity-Unimodality and a Cyclic Sieving Phenomenon for Necklaces</em>. His general theorem
+    covers multipliers whose permutation of <span class="fm">Z/n</span> has exactly one or two fixed
+    points. Beyond that the paper stops, explicitly:</p>
+  <blockquote>“…when n ≢ 1, 2 mod m the situation appears much more delicate, and we do not have a
+    general conjecture.”<cite>Stucky, arXiv:1812.04578, §3</cite></blockquote>
+  <p>That gap — composite <span class="fm">n</span>, multipliers with three or more fixed points — is
+    where the following lives.</p>
+</section>
+
+<section>
+  <h2>The engine: an exact fixed-point count</h2>
+  <p>To decide anything you must count the necklaces a multiplier fixes. Write
+    <span class="fm">A<sub>c</sub>(y) = vy + c</span> for the affine maps with linear part
+    <span class="fm">v</span>, let <span class="fm">m</span> be the order of <span class="fm">v</span>,
+    and set <span class="fm">S = 1 + v + ⋯ + v<sup>m−1</sup></span>.</p>
+  <div class="thm">
+    <div class="label">Lemma (proved)</div>
+    <p>Let <span class="fm">α</span> be a colour content with <span class="fm">gcd(α)=1</span>. The
+      number of <span class="fm">α</span>-necklaces fixed by the multiplier <span class="fm">v</span> is</p>
+    <div class="eq" style="margin:14px 0 12px">#Fix(v) &nbsp;=&nbsp; (1/n) · Σ<sub>c ∈ K</sub> N<sub>α</sub>(A<sub>c</sub>),
+      &nbsp;&nbsp;&nbsp; K = { c : cS ≡ 0 mod n }</div>
+    <p>where <span class="fm">N<sub>α</sub>(A<sub>c</sub>)</span> counts the words of content
+      <span class="fm">α</span> that are constant on the cycles of <span class="fm">A<sub>c</sub></span>.</p>
+  </div>
+  <p><strong>Why.</strong> A necklace is fixed by <span class="fm">v</span> exactly when some
+    representative word is constant on the cycles of some <span class="fm">A<sub>c</sub></span>. Two
+    different <span class="fm">c</span>'s can never share such a word — that word would be fixed by a
+    nontrivial rotation, impossible when <span class="fm">gcd(α)=1</span> — so the count is a clean sum,
+    with no inclusion–exclusion. And if <span class="fm">cS ≠ 0</span>, then
+    <span class="fm">A<sub>c</sub><sup>m</sup></span> is a nontrivial translation of some order
+    <span class="fm">e &gt; 1</span>; every cycle length of <span class="fm">A<sub>c</sub></span> is then
+    divisible by <span class="fm">e</span>, so every colour class has size divisible by
+    <span class="fm">e</span>, forcing <span class="fm">e | gcd(α) = 1</span>. Contradiction: those terms
+    all vanish. ∎</p>
+  <p>The lemma turns an exponential search into an <span class="fm">O(n²)</span> computation, which is
+    what made the rest findable.</p>
+</section>
+
+<section>
+  <h2>The answer</h2>
+  <p>Let <span class="fm">v</span> have order <span class="fm">m</span>, and for each divisor
+    <span class="fm">e</span> of <span class="fm">m</span> let</p>
+  <div class="eq">f<sub>e</sub> &nbsp;=&nbsp; gcd(v<sup>e</sup> − 1, n) &nbsp;=&nbsp;
+    #{ x ∈ Z/n : v<sup>e</sup>x = x }<span class="note">&nbsp;&nbsp;— how much of the circle v<sup>e</sup> holds still</span></div>
+  <div class="thm">
+    <div class="label">Criterion</div>
+    <p>The sieving identity</p>
+    <div class="eq" style="margin:14px 0 14px">[ n choose k ]<sub>q</sub> / [n]<sub>q</sub>
+      &nbsp;&nbsp;at&nbsp;&nbsp; q = ζ<sub>m</sub> &nbsp;&nbsp;=&nbsp;&nbsp;
+      #{ k-subset necklaces of Z/n fixed by v }</div>
+    <p>holds for <em>every</em> <span class="fm">k</span> coprime to <span class="fm">n</span> if and
+      only if, for every proper divisor <span class="fm">e</span> of <span class="fm">m</span>:</p>
+    <ol>
+      <li><span class="fm">φ(f<sub>e</sub>) ≤ 2</span> &nbsp;— that is,
+        <span class="fm">f<sub>e</sub> ∈ {1, 2, 3, 4, 6}</span>;</li>
+      <li>every prime dividing <span class="fm">f<sub>e</sub></span> divides <span class="fm">m</span>.</li>
+    </ol>
+  </div>
+  <p>Condition&nbsp;(1) is the crystallographic restriction, verbatim. The orders of rotational symmetry
+    a plane lattice may have are 1, 2, 3, 4 and 6, and the reason is that
+    <span class="fm">2cos(2π/f)</span> must be a rational integer — that is,
+    <span class="fm">φ(f) ≤ 2</span>. Here the same five numbers say which multipliers a necklace's
+    q-analogue can see.</p>
+</section>
+
+<figure class="wide">
+  <div class="orders">
+    <div class="order yes"><svg width="46" height="46" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="17" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".35"/><circle cx="23" cy="6" r="3" fill="currentColor"/></svg><div class="n">1</div><div class="v">allowed</div></div>
+    <div class="order yes"><svg width="46" height="46" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="17" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".35"/><circle cx="23" cy="6" r="3" fill="currentColor"/><circle cx="23" cy="40" r="3" fill="currentColor"/></svg><div class="n">2</div><div class="v">allowed</div></div>
+    <div class="order yes"><svg width="46" height="46" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="17" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".35"/><circle cx="23" cy="6" r="3" fill="currentColor"/><circle cx="37.72" cy="31.5" r="3" fill="currentColor"/><circle cx="8.28" cy="31.5" r="3" fill="currentColor"/></svg><div class="n">3</div><div class="v">allowed</div></div>
+    <div class="order yes"><svg width="46" height="46" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="17" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".35"/><circle cx="23" cy="6" r="3" fill="currentColor"/><circle cx="40" cy="23" r="3" fill="currentColor"/><circle cx="23" cy="40" r="3" fill="currentColor"/><circle cx="6" cy="23" r="3" fill="currentColor"/></svg><div class="n">4</div><div class="v">allowed</div></div>
+    <div class="order no"><svg width="46" height="46" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="17" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".35"/><circle cx="23" cy="6" r="3" fill="currentColor"/><circle cx="39.17" cy="17.75" r="3" fill="currentColor"/><circle cx="32.99" cy="36.75" r="3" fill="currentColor"/><circle cx="13.01" cy="36.75" r="3" fill="currentColor"/><circle cx="6.83" cy="17.75" r="3" fill="currentColor"/></svg><div class="n">5</div><div class="v">never</div></div>
+    <div class="order yes"><svg width="46" height="46" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="17" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".35"/><circle cx="23" cy="6" r="3" fill="currentColor"/><circle cx="37.72" cy="14.5" r="3" fill="currentColor"/><circle cx="37.72" cy="31.5" r="3" fill="currentColor"/><circle cx="23" cy="40" r="3" fill="currentColor"/><circle cx="8.28" cy="31.5" r="3" fill="currentColor"/><circle cx="8.28" cy="14.5" r="3" fill="currentColor"/></svg><div class="n">6</div><div class="v">allowed</div></div>
+    <div class="order no"><svg width="46" height="46" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="17" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".35"/><circle cx="23" cy="6" r="2.6" fill="currentColor"/><circle cx="36.28" cy="15.65" r="2.6" fill="currentColor"/><circle cx="41.35" cy="31.26" r="2.6" fill="currentColor"/><circle cx="28.24" cy="39.79" r="2.6" fill="currentColor"/><circle cx="17.76" cy="39.79" r="2.6" fill="currentColor"/><circle cx="4.65" cy="31.26" r="2.6" fill="currentColor"/><circle cx="9.72" cy="15.65" r="2.6" fill="currentColor"/></svg><div class="n">7</div><div class="v">never</div></div>
+    <div class="order no"><svg width="46" height="46" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="17" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".35"/><circle cx="23" cy="6" r="2.6" fill="currentColor"/><circle cx="35.02" cy="10.98" r="2.6" fill="currentColor"/><circle cx="40" cy="23" r="2.6" fill="currentColor"/><circle cx="35.02" cy="35.02" r="2.6" fill="currentColor"/><circle cx="23" cy="40" r="2.6" fill="currentColor"/><circle cx="10.98" cy="35.02" r="2.6" fill="currentColor"/><circle cx="6" cy="23" r="2.6" fill="currentColor"/><circle cx="10.98" cy="10.98" r="2.6" fill="currentColor"/></svg><div class="n">8</div><div class="v">never</div></div>
+  </div>
+  <figcaption>The permitted sizes of a multiplier's fixed set. Identical to the permitted rotation
+    orders of a plane lattice — and for the same underlying reason: a cyclotomic quantity is being
+    forced to be rational.</figcaption>
+</figure>
+
+<div class="col">
+<section>
+  <h2>Why those five numbers</h2>
+  <p>The derivation is short enough to give. Take a multiplier whose orbits all have size 1 or
+    <span class="fm">m</span>, with <span class="fm">f</span> fixed points, so
+    <span class="fm">n = f + mt</span> and hence <span class="fm">n ≡ f (mod m)</span>.</p>
+  <p>Evaluate <span class="fm">Y(q)</span> at a primitive <span class="fm">m</span>-th root of unity by
+    q-Lucas. With <span class="fm">r = n mod m</span> and <span class="fm">s = k mod m</span> it collapses to</p>
+  <div class="eq">Y(ζ) &nbsp;=&nbsp; C(⌊n/m⌋, ⌊k/m⌋) · [ r choose s ]<sub>ζ</sub> / [r]<sub>ζ</sub></div>
+  <p>This is a rational number only in special cases: <span class="fm">s = 1</span> and
+    <span class="fm">s = r−1</span> give the ratio 1; <span class="fm">s &gt; r</span> gives 0; the rest
+    are genuinely irrational, and an irrational number cannot count anything. So the sieving survives
+    only if every <em>bad</em> residue <span class="fm">s ∈ {0, 2, 3, …, r−2, r}</span> is unreachable
+    by any <span class="fm">k</span> coprime to <span class="fm">n</span>.</p>
+  <p>A residue <span class="fm">s</span> is unreachable precisely when it shares a prime with
+    <span class="fm">gcd(m,n)</span>. Ruling out all the bad ones therefore forces
+    <strong>every prime <span class="fm">q ≤ f</span> other than <span class="fm">f−1</span> to divide
+    <span class="fm">gcd(m,n)</span></strong>.</p>
+  <p>Now the squeeze. If such a prime <span class="fm">q</span> divided <span class="fm">n</span> but not
+    <span class="fm">f</span>, uniformity would force <span class="fm">v</span> to have order
+    <span class="fm">m</span> already modulo <span class="fm">q</span>, so
+    <span class="fm">m | q−1</span> and <span class="fm">m ≤ q−1</span>. But
+    <span class="fm">q | m</span> gives <span class="fm">q ≤ m</span>. Together:
+    <span class="fm">q ≤ m ≤ q−1</span> — impossible. So every prime
+    <span class="fm">q ≤ f</span> with <span class="fm">q ≠ f−1</span> must divide
+    <span class="fm">f</span> itself.</p>
+  <p>That condition alone pins <span class="fm">f</span> down. It permits 1, 2, 3, 4 and 6. It kills 5
+    (2 ∤ 5), it kills 7 (2 ∤ 7), it kills 8 (3 ∤ 8) — and for every
+    <span class="fm">f ≥ 7</span> at least two of 2, 3, 5 must divide <span class="fm">f</span>, which
+    drags in the next prime, and the next, forever. Nothing survives.</p>
+  <div class="aside">The crystallographic restriction is usually proved from a trace being an integer.
+    Here it falls out of a q-binomial being rational. Two different rationality constraints, the same
+    five numbers, because both are asking a root of unity to live in a field of degree at most two.</div>
+</section>
+
+<section>
+  <h2>The verdict grid</h2>
+  <p>For a multiplier with uniform orbits, the criterion depends only on the pair (order
+    <span class="fm">m</span>, fixed points <span class="fm">f</span>) — <em>never</em> on
+    <span class="fm">n</span>, and never on the number of orbits. That invariance was the first sign
+    something clean was there.</p>
+</section>
+</div>
+
+<figure class="wide">
+  <div class="tablebox">
+    <table>
+      <caption>Sieving holds (■) or fails, by multiplier order m and fixed-point count f</caption>
+      <thead><tr><th scope="col">m \ f</th><th scope="col">1</th><th scope="col">2</th><th scope="col">3</th><th scope="col">4</th><th scope="col">5</th><th scope="col">6</th><th scope="col">7</th><th scope="col">8</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">2</th><td class="y">■</td><td class="y">■</td><td class="n">·</td><td class="y">■</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="n">·</td></tr>
+        <tr><th scope="row">3</th><td class="y">■</td><td class="n">·</td><td class="y">■</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="n">·</td></tr>
+        <tr><th scope="row">4</th><td class="y">■</td><td class="y">■</td><td class="n">·</td><td class="y">■</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="n">·</td></tr>
+        <tr><th scope="row">5</th><td class="y">■</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="n">·</td></tr>
+        <tr><th scope="row">6</th><td class="y">■</td><td class="y">■</td><td class="y">■</td><td class="y">■</td><td class="n">·</td><td class="y">■</td><td class="n">·</td><td class="n">·</td></tr>
+        <tr><th scope="row">7</th><td class="y">■</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="n">·</td></tr>
+        <tr><th scope="row">8</th><td class="y">■</td><td class="y">■</td><td class="n">·</td><td class="y">■</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="n">·</td></tr>
+        <tr><th scope="row">9</th><td class="y">■</td><td class="n">·</td><td class="y">■</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="n">·</td></tr>
+        <tr><th scope="row">10</th><td class="y">■</td><td class="y">■</td><td class="n">·</td><td class="y">■</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="n">·</td></tr>
+        <tr><th scope="row">11</th><td class="y">■</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="n">·</td><td class="n">·</td></tr>
+        <tr><th scope="row">12</th><td class="y">■</td><td class="y">■</td><td class="y">■</td><td class="y">■</td><td class="n">·</td><td class="y">■</td><td class="n">·</td><td class="n">·</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <figcaption>Columns 5, 7, 8 are empty forever. Column 1 and 2 are the previously known cases;
+    columns 3, 4 and 6 are new. Reading across row 6: an order-6 multiplier tolerates every
+    crystallographic fixed-point count — because 6 is divisible by both 2 and 3.</figcaption>
+</figure>
+
+<div class="col">
+<section>
+  <h2>Evidence</h2>
+  <p>Every instance was checked by exact integer and cyclotomic arithmetic — no floating point anywhere.
+    The polynomial side was computed from the factorisation
+    <span class="fm">Y(q) = ∏ Φ<sub>d</sub>(q)</span> over <span class="fm">d ∤ n</span> with
+    <span class="fm">(k mod d) &gt; (n mod d)</span>, cross-validated against direct division for all
+    <span class="fm">n &lt; 30</span>; the fixed-point side from the lemma above, cross-validated
+    against brute-force necklace enumeration.</p>
+  <div class="stats">
+    <div class="stat"><div class="k">Multipliers tested</div><div class="v">2,709</div></div>
+    <div class="stat"><div class="k">Range of n</div><div class="v">4 – 96</div></div>
+    <div class="stat"><div class="k">Counterexamples</div><div class="v ok">0</div></div>
+  </div>
+  <p style="margin-top:20px">That is the criterion in its general form — no uniformity hypothesis,
+    quantified over all divisors <span class="fm">e | m</span> — against every unit of every
+    <span class="fm">Z/n</span> in range. Each multiplier is checked against <em>every</em> admissible
+    <span class="fm">k</span>, so the underlying instance count runs to the tens of thousands. The
+    uniform special case was verified separately over 2,479 multipliers out to
+    <span class="fm">n = 110</span>, also with no exceptions.</p>
+  <h3>What is proved, and what is not</h3>
+  <p>The counting lemma is proved outright. The necessity of
+    <span class="fm">f ∈ {1,2,3,4,6}</span> is derived above for multipliers with uniform orbits.
+    Sufficiency, and the general multi-level form of the criterion, are at present exhaustively
+    verified rather than proved — I would call the statement a theorem-shaped conjecture with unusually
+    strong evidence, not a finished theorem.</p>
+  <p>One boundary worth naming: with three or more colours the criterion is <em>strictly stronger</em>.
+    At <span class="fm">n = 28</span> the two-colour sieving holds for several multipliers where the
+    three-colour version fails. The extra colours see something the subsets do not, and I do not yet
+    know what.</p>
+</section>
+
+<section>
+  <h2>The honest ledger</h2>
+  <p>This came out of a wide search, and most of what the search turned up was already known. Recording
+    that is part of the result.</p>
+  <div class="ledger">
+    <div class="row"><span class="tag new">new</span>
+      <p><strong>The criterion above.</strong> Fixed-point counts 3, 4 and 6 are cases the literature
+        did not cover, sitting exactly in the regime flagged as having no general conjecture.</p></div>
+    <div class="row"><span class="tag new">new</span>
+      <p><strong>The exact fixed-point lemma.</strong> The vanishing of every term outside
+        <span class="fm">K</span> is what makes the whole question computable.</p></div>
+    <div class="row"><span class="tag old">rediscovered</span>
+      <p><strong>Sieving for prime n.</strong> I derived it and proved it by q-Lucas before finding it
+        as Corollary 3.3 of Stucky's paper. Genuinely his.</p></div>
+    <div class="row"><span class="tag old">rediscovered</span>
+      <p><strong>Separated cyclic subsets.</strong> That
+        <span class="fm">([n]<sub>q</sub>/[n−mk]<sub>q</sub>)·[n−mk choose k]<sub>q</sub></span> sieves
+        k-subsets of a cycle with all gaps <span class="fm">≥ m+1</span> — verified to
+        <span class="fm">n = 16</span>, and not new.</p></div>
+    <div class="row"><span class="tag old">rediscovered</span>
+      <p><strong>Orbit-counting sequences.</strong> Central binomials, Apéry numbers, Franel and Domb
+        numbers all count periodic points of some system; their orbit counts are already catalogued in
+        the OEIS as the A060165 family.</p></div>
+    <div class="row"><span class="tag open">unclaimed</span>
+      <p><strong>Strings that are their own Burrows–Wheeler transform.</strong> Among 4,116 necklaces of
+        length 16, exactly 11 are BWT-fixed; the counts 3, 4, 4, 4, 7, 6, 5, 9, 5, 6, 9, 8, 8, 11, 11,
+        7, 15 are in no database I could find. Irregular, exotic, and left open here.</p></div>
+    <div class="row"><span class="tag open">side result</span>
+      <p><strong>Orbit towers terminate.</strong> If <span class="fm">L</span> sends a periodic-point
+        sequence to its orbit counts, then for any nonzero <span class="fm">a ≥ 0</span> some
+        <span class="fm">L<sup>j</sup>(a)</span> leaves the nonnegative integers. Taking the primes of
+        the primes of the primes always runs out — bounded by
+        <span class="fm">log<sub>N</sub>(a<sub>N</sub>)</span> at the first nonzero term. Small, but
+        proved, and I have not seen it stated.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>What it means</h2>
+  <p>A necklace has no lattice in it. There is no plane, no translation group, no crystal. And yet the
+    numbers that govern which multipliers its q-analogue can see are the five orders a crystal is
+    permitted to have.</p>
+  <p>The shared cause is the only thing both situations really contain: a root of unity that has been
+    asked to be rational. A lattice asks it through a trace; a necklace asks it through a q-binomial.
+    Neither knows about the other. They get the same answer because there was only ever one question.</p>
+  <p>That is what looping a string does. It replaces a set of positions with a group of symmetries, and
+    from then on the arithmetic of roots of unity decides what is possible — in a crystal, in a
+    polynomial, in a necklace. The constraint was never about matter or about counting. It was about
+    the circle.</p>
+</section>
+
+<footer>
+  Computations: exact integer, cyclotomic and polynomial arithmetic in Python; no floating point.<br>
+  Prior work: E. N. Stucky, <em>Parity-Unimodality and a Cyclic Sieving Phenomenon for Necklaces</em>,
+  arXiv:1812.04578. V. Reiner, D. Stanton, D. White, <em>The cyclic sieving phenomenon</em>, JCTA 2004.
+</footer>
+</div>
+</div>

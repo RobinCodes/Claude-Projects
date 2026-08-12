@@ -1,0 +1,6 @@
+  n<=48: tested=60 hold=47 mismatch=0
+  n<=60: tested=438 hold=235 mismatch=0
+  n<=72: tested=912 hold=495 mismatch=0
+  n<=84: tested=1478 hold=824 mismatch=0
+  n<=96: tested=2106 hold=1030 mismatch=0
+RANGE 47..96: tested=2106 hold=1030 MISMATCHES=0

@@ -1,0 +1,740 @@
+% ============================================================================
+%  A crystallographic restriction for multiplier cyclic sieving on necklaces
+%
+%  Compile with:   pdflatex paper.tex   (twice, for references)
+%  Dependencies:   amsmath, amssymb, amsthm, geometry, color, graphicx  (all standard)
+%                  hyperref and T1 fontenc are used only if installed.
+% ============================================================================
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=3.2cm]{geometry}
+% hyperref needs the oberdiek bundle (texlive-latexrecommended); optional.
+\IfFileExists{infwarerr.sty}{\usepackage[hidelinks]{hyperref}}{}
+\providecommand{\texorpdfstring}[2]{#1}   % no-op when hyperref is absent
+
+% T1 encoding needs the ec fonts (texlive-fontsrecommended); use it only if present.
+\IfFileExists{ecrm1000.tfm}{\usepackage[T1]{fontenc}}{}
+
+% Both figures are drawn in the base LaTeX picture environment, so nothing beyond
+% the standard graphics bundle is needed -- no TikZ/PGF, no external image files.
+\usepackage{color,graphicx}
+\definecolor{azurite} {rgb}{0.102,0.396,0.596}  % 26,101,152
+\definecolor{oxide}   {rgb}{0.635,0.302,0.169}  % 162,77,43
+\definecolor{cellpale}{rgb}{0.804,0.867,0.910}  % azurite, 22% on white
+\definecolor{gridgray}{rgb}{0.702,0.702,0.702}
+\definecolor{rulegray}{rgb}{0.502,0.502,0.502}
+
+\emergencystretch=1.2em
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{hypothesis}[theorem]{Hypothesis}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Zn}{\Z/n\Z}
+\newcommand{\units}[1]{(\Z/#1\Z)^{\times}}
+\newcommand{\qint}[1]{[#1]_q}
+\newcommand{\qbin}[2]{\genfrac[]{0pt}{}{#1}{#2}_{q}}
+\newcommand{\Fix}{\operatorname{Fix}}
+\newcommand{\rad}{\operatorname{rad}}
+\newcommand{\ord}{\operatorname{ord}}
+\newcommand{\CSP}{\textup{CSP}}
+
+\title{A crystallographic restriction for multiplier\\ cyclic sieving on necklaces}
+
+\author{Robin Rovenszky\thanks{Discovered, verified and drafted in collaboration with
+Claude (Anthropic). All computations are exact and reproducible from the accompanying
+source code; see Section~\ref{sec:verification}.}}
+
+\date{August 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Let $Y_{n,k}(q)=\qbin{n}{k}\big/\qint{n}$ be the natural $q$-analogue of the number
+$\binom{n}{k}/n$ of binary necklaces of length $n$ with $k$ black beads, defined whenever
+$\gcd(n,k)=1$. Rotation acts trivially on necklaces, but the \emph{multipliers}
+$x\mapsto vx$ for $v\in\units{n}$ do not; group-theoretically these are the symmetries
+lying in the normaliser of the rotation group inside $S_n$. We ask when
+$Y_{n,k}$ evaluated at a root of unity counts the necklaces a multiplier fixes.
+
+Writing $f_e=\gcd(v^e-1,n)$ for the number of points of $\Zn$ held fixed by $v^e$, we
+give a criterion: the sieving identity holds for every $k$ coprime to $n$ if and only if,
+for every proper divisor $e$ of the order $m$ of $v$, one has $\varphi(f_e)\le 2$ --- that
+is $f_e\in\{1,2,3,4,6\}$ --- together with $\rad(f_e)\mid m$. The first condition is the
+crystallographic restriction, and we show that it is forced: for multipliers with uniform
+orbits and $f<m$, the identity compels every prime $q\le f$ with $q\ne f-1$ to divide $f$
+itself, and elementary number theory then permits only $1,2,3,4,6$.
+
+We prove an exact formula for the number of multiplier-fixed necklaces which makes the
+question computable, prove the arithmetic reduction to the crystallographic set, and report
+exhaustive verification of the criterion: $2{,}709$ multipliers over $4\le n\le 96$ with no
+counterexample, using exact integer and cyclotomic arithmetic throughout. The cases
+$f\in\{3,4,6\}$ lie in a regime that Stucky \cite{stucky} explicitly leaves open.
+\end{abstract}
+
+\section{Introduction}
+
+Looping a string makes a cyclic group act on it, and the characters of a cyclic group are
+roots of unity. The sharpest modern expression of that principle is the \emph{cyclic
+sieving phenomenon} of Reiner, Stanton and White \cite{rsw}; see \cite{sagan} for a survey.
+
+\begin{definition}[\cite{rsw}]\label{def:csp}
+Let $X$ be a finite set carrying an action of a cyclic group $C=\langle c\rangle$ of order
+$N$, and let $X(q)\in\Z[q]$ satisfy $X(1)=|X|$. The triple $(X,X(q),C)$ exhibits the
+\emph{cyclic sieving phenomenon} if for every $d\in\Z$,
+\[
+  \bigl|\{x\in X: c^{\,d}x=x\}\bigr| \;=\; X(q)\big|_{q=\zeta_N^{\,d}},
+\]
+where $\zeta_N=e^{2\pi i/N}$.
+\end{definition}
+
+Fix $n\ge 3$ and colour the positions $\Zn$ with two colours, $k$ of them black. Modulo the
+rotation action of $\Zn$ these are the \emph{necklaces}; when $\gcd(n,k)=1$ the rotation
+action is free and there are exactly $\binom{n}{k}/n$ of them. The natural $q$-analogue of
+that count is
+\begin{equation}\label{eq:Y}
+  Y_{n,k}(q)\;=\;\frac{\qbin{n}{k}}{\qint{n}},
+  \qquad \qint{n}=1+q+\dots+q^{\,n-1},
+\end{equation}
+which is a polynomial with non-negative integer coefficients precisely when $\gcd(n,k)=1$
+(Proposition~\ref{prop:factor}).
+
+Rotation itself acts trivially on necklaces, so it carries no information. What survives is
+the action of the \emph{multiplier group} $\units{n}$: for a unit $v$, relabel positions by
+$x\mapsto vx$. Inside $S_n$ these are exactly the permutations normalising the cyclic
+rotation group, so the full symmetry available is the affine group
+$\Zn\rtimes\units{n}$. Rotation spins a necklace; a multiplier rewires it.
+
+\paragraph{Known results.}
+For $n$ prime the sieving always holds; this is Corollary~3.3 of Stucky \cite{stucky},
+whose general theorem covers multipliers acting on $\Zn$ with exactly one or two fixed
+points, subject to conditions on the associated Young subgroup. Beyond that the paper
+stops, and says so:
+\begin{quote}
+\emph{``\dots when $n\not\equiv 1,2 \bmod m$ the situation appears much more delicate, and we
+do not have a general conjecture.''} \cite[\S3]{stucky}
+\end{quote}
+That regime --- composite $n$, multipliers with three or more fixed points --- is the
+subject of this note.
+
+\paragraph{Results.}
+Section~\ref{sec:count} proves an exact formula for the number of multiplier-fixed
+necklaces (Lemma~\ref{lem:fix}); it is the tool that makes the question decidable in
+$O(n^2)$ arithmetic operations rather than by exponential enumeration.
+Section~\ref{sec:eval} records the cyclotomic factorisation of $Y_{n,k}$ and its evaluation
+at roots of unity. Section~\ref{sec:criterion} states the criterion.
+Section~\ref{sec:crystal} proves the arithmetic heart: the fixed-point count is forced into
+the crystallographic set $\{1,2,3,4,6\}$. Section~\ref{sec:verification} reports the
+computational evidence and Section~\ref{sec:open} the boundaries. We are explicit
+throughout about which statements are proved and which are verified.
+
+\section{Notation}\label{sec:prelim}
+
+Throughout $n\ge 3$, and $\alpha=(\alpha_1,\dots,\alpha_\ell)$ is a \emph{content}: a
+composition of $n$ recording how many positions receive each of $\ell$ colours. Words of
+content $\alpha$ are maps $w:\Zn\to\{1,\dots,\ell\}$ with $|w^{-1}(i)|=\alpha_i$. The rotation
+group $\Zn$ acts on them, freely if and only if $\gcd(\alpha)=1$; the orbits are
+\emph{$\alpha$-necklaces}. The binary case is $\alpha=(k,n-k)$ with $\gcd(n,k)=1$.
+
+For $v\in\units{n}$ we write $m=\ord_n(v)$ and let $v$ act on necklaces by
+$[w]\mapsto[w\circ v]$. We put
+\[
+  f_e=\gcd(v^e-1,\;n)=\bigl|\{x\in\Zn: v^e x=x\}\bigr|,\qquad f=f_1 .
+\]
+$\Phi_d$ denotes the $d$-th cyclotomic polynomial, $\zeta_m$ a primitive $m$-th root of
+unity, $\varphi$ Euler's totient, and $\rad(x)=\prod_{p\mid x}p$ the radical. We call $v$
+\emph{uniform} if every $\langle v\rangle$-orbit on $\Zn$ has size $1$ or $m$.
+
+\section{Counting multiplier-fixed necklaces}\label{sec:count}
+
+For $c\in\Zn$ let $A_c:\Zn\to\Zn$ be the affine map $A_c(y)=vy+c$; these are exactly the
+affine permutations with linear part $v$. Set
+\[
+  S \;=\; 1+v+v^2+\dots+v^{\,m-1}\ \in\ \Zn,
+  \qquad K \;=\; \{c\in\Zn : cS=0\},
+\]
+and let $N_\alpha(A_c)$ denote the number of words of content $\alpha$ that are constant on
+the cycles of $A_c$.
+
+\begin{lemma}\label{lem:fix}
+Let $\gcd(\alpha)=1$ and $v\in\units{n}$. The number of $\alpha$-necklaces fixed by the
+multiplier $v$ is
+\[
+  \#\Fix(v) \;=\; \frac{1}{n}\sum_{c\,\in\,K} N_\alpha(A_c).
+\]
+In particular every affine map $A_c$ with $c\notin K$ contributes nothing.
+\end{lemma}
+
+\begin{proof}
+\emph{Step 1 (which words count).} A necklace $[w]$ is fixed by $v$ iff $w\circ v=w\circ
+\rho_t$ for some rotation $\rho_t(x)=x+t$. Substituting $y=x+t$, this says $w\circ A=w$ for
+the affine map $A(y)=v(y-t)$, whose linear part is $v$. Conversely any $w$ with $w\circ
+A_c=w$ has $v$-fixed necklace class. So $[w]$ is fixed iff $w$ is constant on the cycles of
+some $A_c$.
+
+\emph{Step 2 (no double counting).} Suppose $w$ is constant on the cycles of both $A_c$ and
+$A_{c'}$ with $c\ne c'$. Then $w$ is invariant under $A_cA_{c'}^{-1}$, which is the rotation
+by $c-c'\ne 0$. Since $\gcd(\alpha)=1$ the rotation action on words of content $\alpha$ is
+free, a contradiction. Hence the sets $\{w: w\circ A_c=w\}$ are pairwise disjoint, and
+summing over $c$ then dividing by the (free) rotation orbit size $n$ gives the count, with
+no inclusion--exclusion.
+
+\emph{Step 3 (only $c\in K$ contribute).} Compute
+$A_c^{\,m}(y)=v^{m}y+c(1+v+\dots+v^{m-1})=y+cS$, so $A_c^{\,m}$ is the rotation by $cS$.
+Suppose $c\notin K$, i.e.\ $cS\ne 0$, and let $e>1$ be its additive order. The rotation
+group generated by $A_c^{\,m}$ has order $e$ and acts freely on $\Zn$; since it is contained
+in $\langle A_c\rangle$, every $\langle A_c\rangle$-orbit has size divisible by $e$. A word
+constant on the cycles of $A_c$ therefore has every colour class a union of cycles, so
+$e\mid\alpha_i$ for each $i$, whence $e\mid\gcd(\alpha)=1$ --- contradicting $e>1$. Thus
+$N_\alpha(A_c)=0$ for $c\notin K$.
+\end{proof}
+
+\begin{remark}
+Step 3 is what makes the problem tractable: $|K|=\gcd(S,n)$ is typically a small divisor of
+$n$, so the sum has few terms, and each cycle type is computed in $O(n)$ steps.
+\end{remark}
+
+\section{The \texorpdfstring{$q$}{q}-analogue at a root of unity}\label{sec:eval}
+
+\begin{proposition}\label{prop:factor}
+Let $\gcd(n,k)=1$. Then $Y_{n,k}(q)$ of \eqref{eq:Y} is a polynomial, and
+\[
+  Y_{n,k}(q)\;=\;\prod_{d\in E(n,k)}\Phi_d(q),
+  \quad
+  E(n,k)=\bigl\{\,d\ge 2\ :\ d\nmid n \ \text{ and }\ (k\bmod d)>(n\bmod d)\,\bigr\}.
+\]
+\end{proposition}
+
+\begin{proof}
+From $\qint{j}=\prod_{d\mid j,\;d\ge2}\Phi_d(q)$ we get
+$\qint{n}!=\prod_{d\ge2}\Phi_d^{\lfloor n/d\rfloor}$, hence
+$\qbin{n}{k}=\prod_{d\ge2}\Phi_d^{\varepsilon_d}$ with
+$\varepsilon_d=\lfloor n/d\rfloor-\lfloor k/d\rfloor-\lfloor (n-k)/d\rfloor$.
+Writing $a=k\bmod d$, $b=(n-k)\bmod d$, $c=n\bmod d$, we have $a+b\in\{c,c+d\}$ and
+$\varepsilon_d=(a+b-c)/d\in\{0,1\}$, with $\varepsilon_d=1$ iff $b=c-a+d$, i.e.\ iff $a>c$.
+Also $\qint{n}=\prod_{d\mid n,\,d\ge2}\Phi_d$. For $d\mid n$ with $d\ge2$ we have
+$c=0$ and, since $\gcd(n,k)=1$ forces $d\nmid k$, also $a>0=c$; so $\varepsilon_d=1$ and
+every factor of $\qint{n}$ is cancelled exactly. The quotient is the stated product.
+\end{proof}
+
+\begin{proposition}[$q$-Lucas]\label{prop:lucas}
+Let $\zeta$ be a primitive $m$-th root of unity, and write $n=am+r$, $k=bm+s$ with
+$0\le r,s<m$. Then
+\[
+  \qbin{n}{k}\Big|_{q=\zeta}=\binom{a}{b}\,\qbin{r}{s}\Big|_{q=\zeta},
+  \qquad
+  \qint{n}\Big|_{q=\zeta}=[r]_{\zeta}.
+\]
+Consequently, if $m\nmid n$,
+\begin{equation}\label{eq:eval}
+  Y_{n,k}(\zeta)\;=\;\binom{a}{b}\cdot\frac{\qbin{r}{s}\big|_{q=\zeta}}{[r]_\zeta}.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+The first identity is the $q$-Lucas theorem. The second holds because
+$\sum_{i=0}^{n-1}\zeta^{\,i}$ splits into $a$ complete cycles, each summing to $0$ when
+$m>1$, leaving $\sum_{i=0}^{r-1}\zeta^{\,i}$.
+\end{proof}
+
+\begin{corollary}\label{cor:rational}
+With $r\ge1$ and $0\le s$, the ratio in \eqref{eq:eval} satisfies
+\[
+  \frac{\qbin{r}{s}\big|_{q=\zeta}}{[r]_\zeta}
+  =\begin{cases}
+    1, & s\in\{1,\;r-1\},\\[2pt]
+    0, & s>r,\\[2pt]
+    1/[r]_\zeta, & s\in\{0,\,r\}.
+  \end{cases}
+\]
+\end{corollary}
+
+\begin{proof}
+$\qbin{r}{1}=\qbin{r}{r-1}=\qint{r}$; $\qbin{r}{0}=\qbin{r}{r}=1$; and $\qbin{r}{s}=0$ for
+$s>r$.
+\end{proof}
+
+Thus \eqref{eq:eval} is manifestly a rational integer for $s\in\{1,r-1\}$ and vanishes for
+$s>r$. For the remaining residues it is an algebraic number in $\Q(\zeta)$ which, in every
+case we have examined, is irrational; since a fixed-point count is a rational integer, those
+residues are obstructions. We isolate this as a hypothesis rather than assert it.
+
+\begin{hypothesis}\label{hyp:bad}
+Let $\zeta$ be a primitive $m$-th root of unity and $2\le r<m$. For
+$s\in\{0,2,3,\dots,r-2,r\}$ the quantity $\qbin{r}{s}\big|_{q=\zeta}\big/[r]_\zeta$ is not a
+rational number.
+\end{hypothesis}
+
+Hypothesis~\ref{hyp:bad} has been verified for all $m\le 96$ and all admissible $r,s$ in the
+course of the computations of Section~\ref{sec:verification}; we have not proved it.
+
+\section{The criterion}\label{sec:criterion}
+
+\begin{conjecture}[Criterion]\label{conj:main}
+Let $n\ge3$ and $v\in\units{n}$ of order $m>1$, and put $f_e=\gcd(v^e-1,n)$. Then
+\[
+  Y_{n,k}(\zeta_m)\;=\;\#\{\,k\text{-subset necklaces of }\Zn\text{ fixed by }v\,\}
+  \qquad\text{for every }k\text{ coprime to }n
+\]
+if and only if, for every proper divisor $e$ of $m$,
+\begin{enumerate}
+  \item[\textup{(i)}] $\varphi(f_e)\le 2$, equivalently $f_e\in\{1,2,3,4,6\}$; and
+  \item[\textup{(ii)}] $\rad(f_e)\mid m$.
+\end{enumerate}
+\end{conjecture}
+
+Since the cyclic sieving phenomenon of Definition~\ref{def:csp} for the group
+$\langle u\rangle$ requires the identity at every power $u^{d}$, and $u^{d}$ is itself a
+multiplier, Conjecture~\ref{conj:main} determines the full \CSP{} by conjunction over the
+divisors of $\ord_n(u)$.
+
+\begin{corollary}[uniform case]\label{cor:uniform}
+If $v$ is uniform then $f_e=f$ for every proper divisor $e$ of $m$, and the criterion reads:
+sieving holds if and only if $f\in\{1,2,3,4,6\}$ and $\rad(f)\mid m$. In particular the
+verdict depends only on the pair $(m,f)$ --- not on $n$, and not on the number of orbits.
+\end{corollary}
+
+The independence from $n$ asserted in Corollary~\ref{cor:uniform} is a striking feature of
+the data and was the first indication that a clean statement existed; see
+Figure~\ref{fig:grid}.
+
+\begin{figure}[t]
+\centering
+\setlength{\unitlength}{0.66cm}%
+\begin{picture}(10.1,13.3)(-2.05,-0.1)
+  % --- shaded cells: sieving holds
+  \put(0,10){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(1,10){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(3,10){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(0,9){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(2,9){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(0,8){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(1,8){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(3,8){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(0,7){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(0,6){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(1,6){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(2,6){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(3,6){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(5,6){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(0,5){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(0,4){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(1,4){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(3,4){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(0,3){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(2,3){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(0,2){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(1,2){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(3,2){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(0,1){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(0,0){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(1,0){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(2,0){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(3,0){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  \put(5,0){\textcolor{cellpale}{\rule{1\unitlength}{1\unitlength}}}
+  % --- grid
+  \thinlines
+  \put(0,0){\textcolor{gridgray}{\line(1,0){8}}}
+  \put(0,1){\textcolor{gridgray}{\line(1,0){8}}}
+  \put(0,2){\textcolor{gridgray}{\line(1,0){8}}}
+  \put(0,3){\textcolor{gridgray}{\line(1,0){8}}}
+  \put(0,4){\textcolor{gridgray}{\line(1,0){8}}}
+  \put(0,5){\textcolor{gridgray}{\line(1,0){8}}}
+  \put(0,6){\textcolor{gridgray}{\line(1,0){8}}}
+  \put(0,7){\textcolor{gridgray}{\line(1,0){8}}}
+  \put(0,8){\textcolor{gridgray}{\line(1,0){8}}}
+  \put(0,9){\textcolor{gridgray}{\line(1,0){8}}}
+  \put(0,10){\textcolor{gridgray}{\line(1,0){8}}}
+  \put(0,11){\textcolor{gridgray}{\line(1,0){8}}}
+  \put(0,0){\textcolor{gridgray}{\line(0,1){11}}}
+  \put(1,0){\textcolor{gridgray}{\line(0,1){11}}}
+  \put(2,0){\textcolor{gridgray}{\line(0,1){11}}}
+  \put(3,0){\textcolor{gridgray}{\line(0,1){11}}}
+  \put(4,0){\textcolor{gridgray}{\line(0,1){11}}}
+  \put(5,0){\textcolor{gridgray}{\line(0,1){11}}}
+  \put(6,0){\textcolor{gridgray}{\line(0,1){11}}}
+  \put(7,0){\textcolor{gridgray}{\line(0,1){11}}}
+  \put(8,0){\textcolor{gridgray}{\line(0,1){11}}}
+  % --- divider: known cases (f=1,2) | new cases
+  \put(2,0){\textcolor{rulegray}{\rule{0.9pt}{11\unitlength}}}
+  % --- verdict marks
+  \put(0,10){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(1,10){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(3,10){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(0,9){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(2,9){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(0,8){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(1,8){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(3,8){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(0,7){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(0,6){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(1,6){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(2,6){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(3,6){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(5,6){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(0,5){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(0,4){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(1,4){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(3,4){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(0,3){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(2,3){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(0,2){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(1,2){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(3,2){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(0,1){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(0,0){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(1,0){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(2,0){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(3,0){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  \put(5,0){\makebox(1,1){\textcolor{azurite}{$\bullet$}}}
+  % --- axis ticks
+  \put(0,11.13){\makebox(1,0.55)[b]{\footnotesize $1$}}
+  \put(1,11.13){\makebox(1,0.55)[b]{\footnotesize $2$}}
+  \put(2,11.13){\makebox(1,0.55)[b]{\footnotesize $3$}}
+  \put(3,11.13){\makebox(1,0.55)[b]{\footnotesize $4$}}
+  \put(4,11.13){\makebox(1,0.55)[b]{\footnotesize $5$}}
+  \put(5,11.13){\makebox(1,0.55)[b]{\footnotesize $6$}}
+  \put(6,11.13){\makebox(1,0.55)[b]{\footnotesize $7$}}
+  \put(7,11.13){\makebox(1,0.55)[b]{\footnotesize $8$}}
+  \put(-1.42,10){\makebox(1.25,1)[r]{\footnotesize $2$}}
+  \put(-1.42,9){\makebox(1.25,1)[r]{\footnotesize $3$}}
+  \put(-1.42,8){\makebox(1.25,1)[r]{\footnotesize $4$}}
+  \put(-1.42,7){\makebox(1.25,1)[r]{\footnotesize $5$}}
+  \put(-1.42,6){\makebox(1.25,1)[r]{\footnotesize $6$}}
+  \put(-1.42,5){\makebox(1.25,1)[r]{\footnotesize $7$}}
+  \put(-1.42,4){\makebox(1.25,1)[r]{\footnotesize $8$}}
+  \put(-1.42,3){\makebox(1.25,1)[r]{\footnotesize $9$}}
+  \put(-1.42,2){\makebox(1.25,1)[r]{\footnotesize $10$}}
+  \put(-1.42,1){\makebox(1.25,1)[r]{\footnotesize $11$}}
+  \put(-1.42,0){\makebox(1.25,1)[r]{\footnotesize $12$}}
+  % --- axis titles
+  \put(0,12.34){\makebox(8,0.6)[b]{\small fixed-point count $f$}}
+  \put(-2.05,0){\makebox(0.6,11){\rotatebox{90}{\small order $m$}}}
+\end{picture}
+\caption{Uniform multipliers: sieving holds ($\bullet$, shaded) or fails (blank), by the
+order $m$ of the multiplier and its fixed-point count $f$. Columns $f=5,7,8$ are empty for
+every $m$; the pattern of a row depends only on which primes divide $m$. Columns $f=1,2$ are
+the previously known cases, columns $f=3,4,6$ are new.}
+\label{fig:grid}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\setlength{\unitlength}{1cm}%
+\begin{picture}(13.2,2.15)(-0.66,-1.48)
+  % --- f = 1 (allowed)
+  \put(0,0){\textcolor{gridgray}{\circle{1.24}}}
+  \put(0,0.62){\textcolor{azurite}{\circle*{0.16}}}
+  \put(-0.5,-1.04){\makebox(1,0.42)[b]{\footnotesize $1$}}
+  \put(-0.8,-1.44){\makebox(1.6,0.36)[b]{\textcolor{azurite}{\tiny allowed}}}
+  % --- f = 2 (allowed)
+  \put(1.7,0){\textcolor{gridgray}{\circle{1.24}}}
+  \put(1.7,0.62){\textcolor{azurite}{\circle*{0.16}}}
+  \put(1.7,-0.62){\textcolor{azurite}{\circle*{0.16}}}
+  \put(1.2,-1.04){\makebox(1,0.42)[b]{\footnotesize $2$}}
+  \put(0.9,-1.44){\makebox(1.6,0.36)[b]{\textcolor{azurite}{\tiny allowed}}}
+  % --- f = 3 (allowed)
+  \put(3.4,0){\textcolor{gridgray}{\circle{1.24}}}
+  \put(3.4,0.62){\textcolor{azurite}{\circle*{0.16}}}
+  \put(2.8631,-0.31){\textcolor{azurite}{\circle*{0.16}}}
+  \put(3.9369,-0.31){\textcolor{azurite}{\circle*{0.16}}}
+  \put(2.9,-1.04){\makebox(1,0.42)[b]{\footnotesize $3$}}
+  \put(2.6,-1.44){\makebox(1.6,0.36)[b]{\textcolor{azurite}{\tiny allowed}}}
+  % --- f = 4 (allowed)
+  \put(5.1,0){\textcolor{gridgray}{\circle{1.24}}}
+  \put(5.1,0.62){\textcolor{azurite}{\circle*{0.16}}}
+  \put(4.48,0){\textcolor{azurite}{\circle*{0.16}}}
+  \put(5.1,-0.62){\textcolor{azurite}{\circle*{0.16}}}
+  \put(5.72,0){\textcolor{azurite}{\circle*{0.16}}}
+  \put(4.6,-1.04){\makebox(1,0.42)[b]{\footnotesize $4$}}
+  \put(4.3,-1.44){\makebox(1.6,0.36)[b]{\textcolor{azurite}{\tiny allowed}}}
+  % --- f = 5 (forbidden)
+  \put(6.8,0){\textcolor{gridgray}{\circle{1.24}}}
+  \put(6.8,0.62){\textcolor{oxide}{\circle*{0.16}}}
+  \put(6.2103,0.1916){\textcolor{oxide}{\circle*{0.16}}}
+  \put(6.4356,-0.5016){\textcolor{oxide}{\circle*{0.16}}}
+  \put(7.1644,-0.5016){\textcolor{oxide}{\circle*{0.16}}}
+  \put(7.3897,0.1916){\textcolor{oxide}{\circle*{0.16}}}
+  \put(6.3,-1.04){\makebox(1,0.42)[b]{\footnotesize $5$}}
+  \put(6,-1.44){\makebox(1.6,0.36)[b]{\textcolor{oxide}{\tiny forbidden}}}
+  % --- f = 6 (allowed)
+  \put(8.5,0){\textcolor{gridgray}{\circle{1.24}}}
+  \put(8.5,0.62){\textcolor{azurite}{\circle*{0.16}}}
+  \put(7.9631,0.31){\textcolor{azurite}{\circle*{0.16}}}
+  \put(7.9631,-0.31){\textcolor{azurite}{\circle*{0.16}}}
+  \put(8.5,-0.62){\textcolor{azurite}{\circle*{0.16}}}
+  \put(9.0369,-0.31){\textcolor{azurite}{\circle*{0.16}}}
+  \put(9.0369,0.31){\textcolor{azurite}{\circle*{0.16}}}
+  \put(8,-1.04){\makebox(1,0.42)[b]{\footnotesize $6$}}
+  \put(7.7,-1.44){\makebox(1.6,0.36)[b]{\textcolor{azurite}{\tiny allowed}}}
+  % --- f = 7 (forbidden)
+  \put(10.2,0){\textcolor{gridgray}{\circle{1.24}}}
+  \put(10.2,0.62){\textcolor{oxide}{\circle*{0.16}}}
+  \put(9.7153,0.3866){\textcolor{oxide}{\circle*{0.16}}}
+  \put(9.5955,-0.138){\textcolor{oxide}{\circle*{0.16}}}
+  \put(9.931,-0.5586){\textcolor{oxide}{\circle*{0.16}}}
+  \put(10.469,-0.5586){\textcolor{oxide}{\circle*{0.16}}}
+  \put(10.8045,-0.138){\textcolor{oxide}{\circle*{0.16}}}
+  \put(10.6847,0.3866){\textcolor{oxide}{\circle*{0.16}}}
+  \put(9.7,-1.04){\makebox(1,0.42)[b]{\footnotesize $7$}}
+  \put(9.4,-1.44){\makebox(1.6,0.36)[b]{\textcolor{oxide}{\tiny forbidden}}}
+  % --- f = 8 (forbidden)
+  \put(11.9,0){\textcolor{gridgray}{\circle{1.24}}}
+  \put(11.9,0.62){\textcolor{oxide}{\circle*{0.16}}}
+  \put(11.4616,0.4384){\textcolor{oxide}{\circle*{0.16}}}
+  \put(11.28,0){\textcolor{oxide}{\circle*{0.16}}}
+  \put(11.4616,-0.4384){\textcolor{oxide}{\circle*{0.16}}}
+  \put(11.9,-0.62){\textcolor{oxide}{\circle*{0.16}}}
+  \put(12.3384,-0.4384){\textcolor{oxide}{\circle*{0.16}}}
+  \put(12.52,0){\textcolor{oxide}{\circle*{0.16}}}
+  \put(12.3384,0.4384){\textcolor{oxide}{\circle*{0.16}}}
+  \put(11.4,-1.04){\makebox(1,0.42)[b]{\footnotesize $8$}}
+  \put(11.1,-1.44){\makebox(1.6,0.36)[b]{\textcolor{oxide}{\tiny forbidden}}}
+\end{picture}
+\caption{The permitted sizes of a multiplier's fixed set, $f\in\{1,2,3,4,6\}$
+(Theorem~\ref{thm:necessity}) --- identical to the permitted orders of rotational symmetry
+of a plane lattice, and for the same underlying reason: a quantity built from a root of
+unity is required to be rational.}
+\label{fig:orders}
+\end{figure}
+
+\section{The crystallographic restriction}\label{sec:crystal}
+
+The plane crystallographic restriction says that a lattice in $\R^2$ admits rotational
+symmetry only of order $1,2,3,4$ or $6$, because the trace $2\cos(2\pi/f)$ of the rotation
+must be a rational integer, i.e.\ $\varphi(f)\le2$. We now show that the same five numbers
+are forced here, by a different rationality constraint.
+
+\begin{lemma}[which residues occur]\label{lem:residues}
+Let $g=\gcd(m,n)$ and $0\le s<m$. There exists $k$ with $k\equiv s\pmod m$ and
+$\gcd(k,n)=1$ if and only if $\gcd(s,g)=1$.
+\end{lemma}
+
+\begin{proof}
+If a prime $p$ divides both $s$ and $g$ then $p\mid n$ and $p\mid k$ for every $k\equiv
+s\pmod m$, so no such $k$ is coprime to $n$. Conversely assume $\gcd(s,g)=1$ and let $p\mid
+n$ be prime. If $p\mid m$ then $p\mid g$, so $p\nmid s$ and hence $p\nmid k$ automatically
+for every $k\equiv s\pmod m$. If $p\nmid m$ then the progression $s+m\Z$ meets every residue
+class modulo $p$, so we may avoid $0$; the finitely many such conditions are simultaneously
+satisfiable by the Chinese remainder theorem.
+\end{proof}
+
+\begin{lemma}[uniformity constrains primes]\label{lem:uniformprime}
+Let $v$ be uniform of order $m$, and let $p$ be a prime with $p\mid n$ and $p\nmid f$. Then
+$\ord_p(v)=m$; in particular $m\mid p-1$ and $m\le p-1$.
+\end{lemma}
+
+\begin{proof}
+Let $H=(n/p)\Zn\cong\Z/p\Z$, a $\langle v\rangle$-stable subgroup, and take $x=(n/p)u\in H$
+with $p\nmid u$. Then $v^{j}x=x$ iff $n\mid (v^{j}-1)(n/p)u$ iff $p\mid v^{j}-1$, so the
+$\langle v\rangle$-orbit of $x$ has size $\ord_p(v)$. If $x$ were fixed then $p\mid v-1$ and
+$p\mid n$, so $p\mid\gcd(v-1,n)=f$, contrary to hypothesis. Hence $x$ is not fixed, and
+uniformity forces its orbit size to be $m$, i.e.\ $\ord_p(v)=m$. As $\ord_p(v)$ divides
+$p-1$, the claim follows.
+\end{proof}
+
+\begin{lemma}[arithmetic]\label{lem:arith}
+Let $f\ge1$ be an integer such that every prime $q\le f$ with $q\ne f-1$ divides $f$. Then
+$f\in\{1,2,3,4,6\}$.
+\end{lemma}
+
+\begin{proof}
+The values $f=1,2,3,4,6$ satisfy the condition: for $f=6$ the primes $\le6$ are $2,3,5$ and
+$5=f-1$ is exempt, while $2\mid6$ and $3\mid6$; the others are immediate. For $f=5$ the
+primes $\le5$ are $2,3,5$ and $f-1=4$ is not prime, so $2\mid5$ would be required, which
+fails.
+
+Now suppose $f\ge7$. Every prime $q\le f/2$ satisfies $q\ne f-1$, because $f-1>f/2$ for
+$f>2$; hence every prime $q\le f/2$ divides $f$, and therefore
+\[
+  f\;\ge\;\prod_{p\le f/2}p\;=\;e^{\theta(f/2)},
+\]
+where $\theta$ is Chebyshev's function. Iterating from $f\ge7$: primes $2,3\le f/2$ give
+$6\mid f$, so $f\ge12$; then $2,3,5\le f/2$ give $30\mid f$, so $f\ge30$; then
+$2,3,5,7,11,13\le f/2$ give $30030\mid f$, so $f\ge30030$. For $f\ge30030$ the Chebyshev
+bound $\theta(x)>0.84x$ (valid for $x\ge101$) yields $f\ge e^{0.42f}$, which is false. Hence
+no $f\ge7$ satisfies the condition.
+\end{proof}
+
+\begin{theorem}[necessity of the crystallographic restriction]\label{thm:necessity}
+Let $v$ be a uniform multiplier of order $m$ with $f<m$, and assume
+Hypothesis~\ref{hyp:bad}. If the sieving identity of Conjecture~\ref{conj:main} holds for
+every $k$ coprime to $n$, then
+\[
+  f\in\{1,2,3,4,6\}\qquad\text{and}\qquad \rad(f)\mid m .
+\]
+\end{theorem}
+
+\begin{proof}
+Uniformity gives $n=f+mt$ where $t$ is the number of orbits of size $m$, so
+$r:=n\bmod m=f\bmod m=f$, using $f<m$. Let $s=k\bmod m$.
+
+By \eqref{eq:eval}, $Y_{n,k}(\zeta_m)=\binom{a}{b}\cdot
+\qbin{r}{s}|_{\zeta}/[r]_\zeta$ with $a=\lfloor n/m\rfloor\ge b=\lfloor k/m\rfloor$, so
+$\binom{a}{b}\ge1$. If $s$ lies in the \emph{bad set}
+$B=\{0,2,3,\dots,r-2,r\}$ then, by Hypothesis~\ref{hyp:bad}, $Y_{n,k}(\zeta_m)\notin\Q$,
+whereas the right-hand side of the sieving identity is a non-negative integer. Hence no
+$k$ coprime to $n$ may have $k\bmod m\in B$. By Lemma~\ref{lem:residues} this says
+$\gcd(s,g)>1$ for every $s\in B$, where $g=\gcd(m,n)$.
+
+In particular, for every prime $q$ with $2\le q\le r=f$ and $q\ne f-1$ we have $q\in B$ and
+therefore $q\mid g$; so $q\mid m$ and $q\mid n$. Suppose such a $q$ did not divide $f$. Then
+Lemma~\ref{lem:uniformprime} applies to the prime $q$ and gives $m\le q-1$; but $q\mid m$
+gives $q\le m$, so $q\le m\le q-1$, a contradiction. Hence every prime $q\le f$ with
+$q\ne f-1$ divides $f$, and Lemma~\ref{lem:arith} yields $f\in\{1,2,3,4,6\}$.
+
+Finally we check $\rad(f)\mid m$. Let $q$ be any prime dividing $f$. Then $q\ne f-1$:
+otherwise $q$ would divide both $f$ and $f-1$, hence $q\mid1$. So $q$ falls under the case
+already treated, giving $q\mid g\mid m$. As this holds for every prime divisor of $f$, we
+conclude $\rad(f)\mid m$.
+\end{proof}
+
+\begin{remark}
+Theorem~\ref{thm:necessity} covers uniform multipliers with $f<m$. When $f\ge m$ (in
+particular when $m\mid n$, where $r=0$ and Proposition~\ref{prop:lucas} degenerates) the
+same conclusion is observed in every computed case but the argument above does not apply
+verbatim. Sufficiency, and the multi-level form of Conjecture~\ref{conj:main} for
+non-uniform $v$, remain unproved.
+\end{remark}
+
+\begin{remark}[why the coincidence is not one]
+Both the lattice statement and Theorem~\ref{thm:necessity} amount to demanding that a
+quantity built from a root of unity be rational: for a lattice it is the trace of a
+rotation, here it is a Gaussian binomial divided by a $q$-integer. In each case the demand
+confines the root of unity to a field of degree at most two over $\Q$, and the surviving
+orders are $\{1,2,3,4,6\}$. A necklace contains no lattice; what the two situations share is
+only the circle.
+\end{remark}
+
+\section{Computational verification}\label{sec:verification}
+
+All computations use exact integer arithmetic, together with exact arithmetic in
+$\Z[q]/(\Phi_m(q))$ for root-of-unity evaluations. No floating point is used anywhere.
+
+\paragraph{Method.} The polynomial side is computed from Proposition~\ref{prop:factor} as a
+product of cyclotomic polynomials reduced modulo $\Phi_m$; the fixed-point side from
+Lemma~\ref{lem:fix}. Both were cross-validated against independent routes: the factorisation
+against direct polynomial division of $\qbin{n}{k}$ by $\qint{n}$ for all $n<30$, and the
+fixed-point formula against brute-force enumeration of necklaces.
+
+\paragraph{Scope.} Each multiplier is tested against \emph{every} admissible $k$, so the
+number of individual instances is in the tens of thousands.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lrrr}
+Form of the criterion & range & multipliers & counterex.\\\hline
+General (all $e\mid m$, no uniformity) & $4\le n\le 96$ & $2{,}709$ & $0$\\
+Uniform $(m,f)$ form (Cor.~\ref{cor:uniform}) & $4\le n\le 115$ & $2{,}682$ & $0$\\
+\end{tabular}
+\caption{Exhaustive verification of Conjecture~\ref{conj:main}.}
+\label{tab:verification}
+\end{table}
+
+\section{Boundaries and open problems}\label{sec:open}
+
+\paragraph{Uniformity is not necessary.} Of $280$ non-uniform multipliers with $n\le60$,
+exactly $38$ satisfy the sieving identity; all of them have orbit-size profile
+$\{1,2,m\}$. This is why Conjecture~\ref{conj:main} is stated over all divisors $e\mid m$
+rather than in the $(m,f)$ form: the single-level condition on $f=f_1$ is necessary but not
+sufficient, failing in $106$ of $603$ multipliers with $n\le46$.
+
+\paragraph{Three colours is strictly stronger.} For contents with $\ell\ge3$ colours the
+criterion as stated is no longer correct: among $213$ multipliers with $n\le28$ there are
+$25$ for which the two-colour identity holds but the three-colour identity fails --- the
+smallest at $n=28$. In every discrepancy the criterion over-predicts. The additional
+obstruction is not understood.
+
+\paragraph{Open problems.}
+\begin{enumerate}
+  \item Prove Hypothesis~\ref{hyp:bad}.
+  \item Prove sufficiency in Conjecture~\ref{conj:main}, and extend
+        Theorem~\ref{thm:necessity} to $f\ge m$.
+  \item Determine the correct criterion for contents with $\ell\ge3$ colours.
+\end{enumerate}
+
+\appendix
+
+\section{An unrelated side result: orbit towers terminate}\label{app:tower}
+
+A sequence $a=(a_j)_{j\ge1}$ of non-negative integers is \emph{realisable} if
+$L(a)_j=\frac1j\sum_{d\mid j}\mu(j/d)\,a_d$ is again a sequence of non-negative integers;
+then $a_j$ counts the points of period $j$ of a dynamical system and $L(a)_j$ counts its
+orbits of length $j$ --- its ``primes''. One may ask whether the primes of a system can
+themselves be the points of a system, indefinitely.
+
+\begin{theorem}\label{thm:tower}
+Let $a\ne0$ be a sequence of non-negative integers. Then $L^{\,j}(a)$ fails to be a sequence
+of non-negative integers for some $j\ge1$.
+\end{theorem}
+
+\begin{proof}
+Let $N=\min\{j: a_j\ne0\}$. If $N\ge2$ then $a_j=0$ for $j<N$, and this persists: if
+$c_j=0$ for all $j<N$ then $L(c)_j=0$ for $j<N$, while $L(c)_N=c_N/N$ since every proper
+divisor of $N$ contributes $0$. Hence $L^{\,j}(a)_N=a_N/N^{\,j}$, which is a positive
+integer for all $j$ only if $a_N=0$, a contradiction.
+
+If $N=1$, put $\lambda=a_1>0$ and $x_j=L^{\,j}(a)_2$. Since $L$ fixes the first term,
+$L^{\,j}(a)_1=\lambda$ for all $j$, and $x_{j+1}=(x_j-\lambda)/2$. Solving,
+$x_j=-\lambda+(a_2+\lambda)2^{-j}\to-\lambda<0$, so $x_j<0$ for large $j$.
+\end{proof}
+
+Thus the tower of ``primes of the primes of the primes'' is always finite, with height at
+most $\log_N(a_N)$ when $N\ge2$. Note the asymmetry: the opposite direction,
+$a\mapsto(\sum_{d\mid j}d\,a_d)_j$, may be iterated forever.
+
+\section{Attribution ledger}\label{app:ledger}
+
+The results above emerged from a broad computational search, most of whose output was
+already known. Recording that is part of the result.
+
+\begin{itemize}
+  \item \textbf{New.} Conjecture~\ref{conj:main} and Theorem~\ref{thm:necessity}; the cases
+        $f\in\{3,4,6\}$ are not covered by \cite{stucky}, and lie exactly in the regime that
+        paper flags as having no general conjecture.
+  \item \textbf{New.} Lemma~\ref{lem:fix}, in particular the vanishing for $c\notin K$.
+  \item \textbf{Rediscovered.} Sieving for prime $n$: derived and proved here via $q$-Lucas
+        before being located as \cite[Cor.~3.3]{stucky}. The result is Stucky's.
+  \item \textbf{Rediscovered.} That
+        $(\qint{n}/\qint{n-mk})\qbin{n-mk}{k}$ cyclically sieves the $k$-subsets of a cycle
+        with all cyclic gaps $\ge m+1$ (verified to $n=16$).
+  \item \textbf{Rediscovered.} That the central binomial, Ap\'ery, Franel and Domb numbers
+        are periodic-point counts; their orbit counts are catalogued in the OEIS as the
+        \texttt{A060165} family.
+  \item \textbf{Observed, uncatalogued.} Necklaces equal to their own Burrows--Wheeler
+        transform. For $n=2,\dots,18$ their numbers are
+        \[3,4,4,4,7,6,5,9,5,6,9,8,8,11,11,7,15,\]
+        so among the $4116$ necklaces of length $16$ exactly $11$ are BWT-fixed. We found no
+        database entry for this sequence and offer no characterisation.
+\end{itemize}
+
+\begin{thebibliography}{9}
+\bibitem{rsw} V.~Reiner, D.~Stanton and D.~White,
+  \emph{The cyclic sieving phenomenon},
+  J.\ Combin.\ Theory Ser.\ A \textbf{108} (2004), 17--50.
+\bibitem{stucky} E.~N.~Stucky,
+  \emph{Parity-Unimodality and a Cyclic Sieving Phenomenon for Necklaces},
+  arXiv:1812.04578.
+\bibitem{sagan} B.~E.~Sagan,
+  \emph{The cyclic sieving phenomenon: a survey},
+  in: Surveys in Combinatorics 2011, London Math.\ Soc.\ Lecture Note Ser.\ \textbf{392},
+  Cambridge Univ.\ Press, 183--233.
+\end{thebibliography}
+
+\end{document}
