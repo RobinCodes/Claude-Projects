@@ -4,7 +4,13 @@ Work from a session on 2026-08-09/10. The headline result is a criterion decidin
 q-binomial evaluated at a root of unity counts the necklaces a *multiplier* leaves fixed.
 The answer is the crystallographic restriction: **{1, 2, 3, 4, 6}**.
 
-**Paper:** `writeup/paper.pdf` (9 pp.) --- build with `pdflatex paper.tex` (run twice).
+**2026-08-13 follow-up:** sufficiency is now **proved**, in full generality, and one of the
+paper's unproved hypotheses is **false**. The paper below has been rewritten to incorporate
+this. See also `sufficiency/PROOF.md` (web version:
+https://claude.ai/code/artifact/4cf026e9-fef5-4f6d-8818-21224149d990) and reproduce with
+`python3 sufficiency/verify.py`.
+
+**Paper:** `writeup/paper.pdf` (16 pp.) --- build with `pdflatex paper.tex` (run twice).
 **Source:** `writeup/paper.tex`, single file, standard packages only.
 **Web version:** `writeup/crystal-sieving.html`
 (published at https://claude.ai/code/artifact/85b442c4-382e-4fa9-8176-b4135affd510)
@@ -103,16 +109,35 @@ Non-zero exit status means a counterexample was found.
 
 ## Status: what is proved and what is not
 
-- **Proved:** the fixed-point lemma above.
-- **Derived:** necessity of `f in {1,2,3,4,6}` for uniform-orbit multipliers.
-- **Verified only:** sufficiency, and the general multi-level form. Treat the criterion as a
-  theorem-shaped conjecture with strong evidence, not a finished theorem.
+**Updated 2026-08-13 — sufficiency is now PROVED. See `sufficiency/PROOF.md`.**
+
+- **Proved:** the fixed-point lemma above; and now, strictly stronger and unconditional,
+  `#Fix_necklaces(v) = #Fix_words(v)/f` for every content with `gcd(alpha)=1` (Theorem A).
+- **Proved:** under the criterion the points of period `< m` form the cyclic subgroup `C_L`
+  with `L in {1,2,3,4,6}` and `v` acting as `+-1` on it (Theorem B) — a restatement of the
+  criterion as "the non-generic points form a subgroup of crystallographic order".
+- **Proved:** **sufficiency of the criterion, in full generality** — no uniformity hypothesis
+  (Theorem C). The proof reduces to: `Q(z) = prod_{|O|<m}(1+z^|O|)` is palindromic of degree
+  `L` with `[z^1]Q = f`, and the achievable residues are exactly `{1, L-1}`, which is
+  precisely the condition `phi(L) <= 2`.
+- **Disproved:** Hypothesis 3.6 of the paper. The smallest counterexample is `m=9, r=8, s=4`,
+  where the ratio equals `-1`; there are 67 with `m <= 60`, all at `r = m-1`, all `+-1`.
+  The first multiplier at which the paper's necessity proof actually depends on it is
+  `n = 99, v = 19` — just past the verified range `n <= 96`. Necessity still holds there,
+  but because `Y_{99,13}(zeta_10) = -9` while the true count is `84`: the evaluation is a
+  rational, indeed negative, integer that is simply wrong.
+- **Verified only:** necessity in the general multi-level case.
 
 ### Open
 
 - **Three or more colours is strictly stronger.** At `n = 28` the two-colour sieving holds for
-  multipliers where the three-colour version fails (`multicolor.py`). Unexplained.
-- **Prove sufficiency**, and the multi-level form in the non-uniform case.
+  multipliers where the three-colour version fails (`multicolor.py`). Unexplained — but
+  Theorem A now applies verbatim to every content, so the discrepancy is entirely on the
+  `q`-analogue side, not the counting side.
+- **Necessity** in the non-uniform multi-level case (sufficiency is done).
+- **Residual irrationality claim:** for `2 <= r <= m-2`, is `qbinom(r,s)|_zeta / [r]_zeta`
+  always irrational at the bad residues? Verified `m <= 60`. A weaker statement suffices for
+  necessity: *if the ratio is rational then it has modulus 1* (proved for `r = m-1`).
 - **BWT-fixed necklaces** (`bwt.py`, `bwtfix.py`): among 4,116 necklaces of length 16 exactly
   11 are their own Burrows–Wheeler transform. Counts for n = 2..18 are
   `3,4,4,4,7,6,5,9,5,6,9,8,8,11,11,7,15` — not in the OEIS. Irregular and uncharacterised.
@@ -145,6 +170,15 @@ References:
 
 Everything is flat Python 3, standard library only (`urllib` for the OEIS oracle). Keep the
 files in one directory — they import each other by module name.
+
+### The 2026-08-13 proof
+
+| File | Role |
+|---|---|
+| `sufficiency/PROOF.md` | Theorems A, B, C and Proposition D. The write-up. |
+| `sufficiency/verify.py` | **Entry point.** Re-checks every claim; `--full` for published ranges. |
+| `sufficiency/core.py` | Exact cyclotomics, `Y(zeta_m)`, orbit and affine-cycle machinery. |
+| `sufficiency/criterion.html` | Web version of the write-up. |
 
 ### Core (the result)
 

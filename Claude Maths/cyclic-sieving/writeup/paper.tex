@@ -48,6 +48,7 @@
 \newcommand{\units}[1]{(\Z/#1\Z)^{\times}}
 \newcommand{\qint}[1]{[#1]_q}
 \newcommand{\qbin}[2]{\genfrac[]{0pt}{}{#1}{#2}_{q}}
+\newcommand{\qbinb}[3]{\genfrac[]{0pt}{}{#1}{#2}_{#3}}
 \newcommand{\Fix}{\operatorname{Fix}}
 \newcommand{\rad}{\operatorname{rad}}
 \newcommand{\ord}{\operatorname{ord}}
@@ -72,19 +73,34 @@ $x\mapsto vx$ for $v\in\units{n}$ do not; group-theoretically these are the symm
 lying in the normaliser of the rotation group inside $S_n$. We ask when
 $Y_{n,k}$ evaluated at a root of unity counts the necklaces a multiplier fixes.
 
-Writing $f_e=\gcd(v^e-1,n)$ for the number of points of $\Zn$ held fixed by $v^e$, we
-give a criterion: the sieving identity holds for every $k$ coprime to $n$ if and only if,
-for every proper divisor $e$ of the order $m$ of $v$, one has $\varphi(f_e)\le 2$ --- that
-is $f_e\in\{1,2,3,4,6\}$ --- together with $\rad(f_e)\mid m$. The first condition is the
-crystallographic restriction, and we show that it is forced: for multipliers with uniform
-orbits and $f<m$, the identity compels every prime $q\le f$ with $q\ne f-1$ to divide $f$
-itself, and elementary number theory then permits only $1,2,3,4,6$.
+Writing $f_e=\gcd(v^e-1,n)$ for the number of points of $\Zn$ held fixed by $v^e$, the
+criterion reads: the sieving identity holds for every $k$ coprime to $n$ precisely when, for
+every proper divisor $e$ of the order $m$ of $v$, one has $\varphi(f_e)\le 2$ --- that is
+$f_e\in\{1,2,3,4,6\}$ --- together with $\rad(f_e)\mid m$. We prove that these conditions
+are \emph{sufficient}, for every multiplier and with no uniformity hypothesis
+(Theorem~\ref{thm:sufficiency}).
 
-We prove an exact formula for the number of multiplier-fixed necklaces which makes the
-question computable, prove the arithmetic reduction to the crystallographic set, and report
-exhaustive verification of the criterion: $2{,}709$ multipliers over $4\le n\le 96$ with no
-counterexample, using exact integer and cyclotomic arithmetic throughout. The cases
-$f\in\{3,4,6\}$ lie in a regime that Stucky \cite{stucky} explicitly leaves open.
+Three ingredients make this possible. First, an unconditional collapse: every $v$-fixed
+necklace carries exactly $f_1$ representatives fixed by $v$ as words, so that counting fixed
+necklaces reduces to the cycle index of a single permutation (Theorem~\ref{thm:collapse});
+this holds for every colour content, not only for two colours. Second, a structure theorem:
+under the criterion the points of $\Zn$ whose $v$-orbit is shorter than $m$ form a cyclic
+subgroup $C_L$ with $L\in\{1,2,3,4,6\}$ on which $v$ acts as $\pm1$
+(Theorem~\ref{thm:structure}). Third, the observation that the orbit polynomial
+$\prod_{|O|<m}(1+z^{|O|})$ is palindromic of degree $L$ with linear coefficient $f_1$, while
+the residues $k\bmod m$ attainable subject to $\gcd(n,k)=1$ are exactly $\{1,L-1\}$ --- a
+statement equivalent to $\varphi(L)\le2$. The crystallographic restriction is thus not an
+input to the argument but a reformulation of its hypothesis.
+
+We also correct the record. The irrationality hypothesis on which the converse direction was
+previously made to rest is false: the smallest counterexample is $m=9$, $r=8$, $s=4$, where
+the relevant ratio equals $-1$, and there are $67$ with $m\le60$, all at $r=m-1$ and all of
+modulus~$1$. We prove the congruence $m\mid r-1-s(r-s)$ that rationality forces, evaluate
+the ratio in closed form at $r=m-1$, and repair the necessity argument accordingly. The
+first multiplier at which the gap is felt is $n=99$, $v=19$ --- just beyond the range
+$n\le96$ over which the criterion had been checked --- where $Y_{99,13}(\zeta_{10})=-9$
+while the true count is $84$. All computations are exact. The cases $f\in\{3,4,6\}$ lie in a
+regime that Stucky \cite{stucky} explicitly leaves open.
 \end{abstract}
 
 \section{Introduction}
@@ -133,15 +149,20 @@ That regime --- composite $n$, multipliers with three or more fixed points --- i
 subject of this note.
 
 \paragraph{Results.}
-Section~\ref{sec:count} proves an exact formula for the number of multiplier-fixed
-necklaces (Lemma~\ref{lem:fix}); it is the tool that makes the question decidable in
-$O(n^2)$ arithmetic operations rather than by exponential enumeration.
-Section~\ref{sec:eval} records the cyclotomic factorisation of $Y_{n,k}$ and its evaluation
-at roots of unity. Section~\ref{sec:criterion} states the criterion.
-Section~\ref{sec:crystal} proves the arithmetic heart: the fixed-point count is forced into
-the crystallographic set $\{1,2,3,4,6\}$. Section~\ref{sec:verification} reports the
+Section~\ref{sec:count} proves the collapse theorem: the number of multiplier-fixed
+necklaces is the number of multiplier-fixed \emph{words} divided by $f_1$
+(Theorem~\ref{thm:collapse}). It holds for every colour content and under no hypotheses,
+and it is what makes the question decidable in $O(n^2)$ arithmetic operations rather than by
+exponential enumeration. Section~\ref{sec:eval} records the cyclotomic factorisation of
+$Y_{n,k}$ and its evaluation at roots of unity, in both the case $m\nmid n$ and the
+degenerate case $m\mid n$. Section~\ref{sec:rational} settles which of these evaluations are
+rational; the hypothesis previously assumed here is disproved.
+Section~\ref{sec:criterion} states the criterion, Section~\ref{sec:structure} reformulates
+it as a statement about a subgroup, and Section~\ref{sec:sufficiency} proves sufficiency.
+Section~\ref{sec:crystal} treats the converse: the fixed-point count is forced into the
+crystallographic set $\{1,2,3,4,6\}$. Section~\ref{sec:verification} reports the
 computational evidence and Section~\ref{sec:open} the boundaries. We are explicit
-throughout about which statements are proved and which are verified.
+throughout about which statements are proved and which are only verified.
 
 \section{Notation}\label{sec:prelim}
 
@@ -165,48 +186,99 @@ unity, $\varphi$ Euler's totient, and $\rad(x)=\prod_{p\mid x}p$ the radical. We
 For $c\in\Zn$ let $A_c:\Zn\to\Zn$ be the affine map $A_c(y)=vy+c$; these are exactly the
 affine permutations with linear part $v$. Set
 \[
-  S \;=\; 1+v+v^2+\dots+v^{\,m-1}\ \in\ \Zn,
-  \qquad K \;=\; \{c\in\Zn : cS=0\},
+  S_j \;=\; 1+v+v^2+\dots+v^{\,j-1}\ \in\ \Zn ,
 \]
-and let $N_\alpha(A_c)$ denote the number of words of content $\alpha$ that are constant on
-the cycles of $A_c$.
+let $N_\alpha(A_c)$ denote the number of words of content $\alpha$ constant on the cycles of
+$A_c$, and abbreviate $N_\alpha(v)=N_\alpha(A_0)$: the number of words of content $\alpha$
+constant on the $\langle v\rangle$-orbits of $\Zn$, equivalently the number of words $w$
+with $w\circ v=w$.
 
-\begin{lemma}\label{lem:fix}
-Let $\gcd(\alpha)=1$ and $v\in\units{n}$. The number of $\alpha$-necklaces fixed by the
-multiplier $v$ is
-\[
-  \#\Fix(v) \;=\; \frac{1}{n}\sum_{c\,\in\,K} N_\alpha(A_c).
-\]
-In particular every affine map $A_c$ with $c\notin K$ contributes nothing.
+\begin{lemma}\label{lem:disjoint}
+Let $\gcd(\alpha)=1$. A necklace $[w]$ of content $\alpha$ is fixed by the multiplier $v$ if
+and only if $w$ is constant on the cycles of $A_c$ for some $c\in\Zn$, and that $c$ is then
+unique.
 \end{lemma}
 
 \begin{proof}
-\emph{Step 1 (which words count).} A necklace $[w]$ is fixed by $v$ iff $w\circ v=w\circ
-\rho_t$ for some rotation $\rho_t(x)=x+t$. Substituting $y=x+t$, this says $w\circ A=w$ for
-the affine map $A(y)=v(y-t)$, whose linear part is $v$. Conversely any $w$ with $w\circ
-A_c=w$ has $v$-fixed necklace class. So $[w]$ is fixed iff $w$ is constant on the cycles of
-some $A_c$.
+\emph{Existence.} $[w]$ is fixed by $v$ iff $w\circ v=w\circ\rho_t$ for some rotation
+$\rho_t(x)=x+t$. Substituting $y=x+t$ turns this into $w\circ A=w$ for the affine map
+$A(y)=v(y-t)$, whose linear part is $v$. Conversely any $w$ with $w\circ A_c=w$ has
+$v$-fixed necklace class.
 
-\emph{Step 2 (no double counting).} Suppose $w$ is constant on the cycles of both $A_c$ and
-$A_{c'}$ with $c\ne c'$. Then $w$ is invariant under $A_cA_{c'}^{-1}$, which is the rotation
-by $c-c'\ne 0$. Since $\gcd(\alpha)=1$ the rotation action on words of content $\alpha$ is
-free, a contradiction. Hence the sets $\{w: w\circ A_c=w\}$ are pairwise disjoint, and
-summing over $c$ then dividing by the (free) rotation orbit size $n$ gives the count, with
-no inclusion--exclusion.
+\emph{Uniqueness.} If $w$ is constant on the cycles of both $A_c$ and $A_{c'}$ with $c\ne
+c'$, then $w$ is invariant under $A_cA_{c'}^{-1}$, which is the rotation by $c-c'\ne0$.
+Since $\gcd(\alpha)=1$ the rotation action on words of content $\alpha$ is free, a
+contradiction.
+\end{proof}
 
-\emph{Step 3 (only $c\in K$ contribute).} Compute
-$A_c^{\,m}(y)=v^{m}y+c(1+v+\dots+v^{m-1})=y+cS$, so $A_c^{\,m}$ is the rotation by $cS$.
-Suppose $c\notin K$, i.e.\ $cS\ne 0$, and let $e>1$ be its additive order. The rotation
-group generated by $A_c^{\,m}$ has order $e$ and acts freely on $\Zn$; since it is contained
-in $\langle A_c\rangle$, every $\langle A_c\rangle$-orbit has size divisible by $e$. A word
-constant on the cycles of $A_c$ therefore has every colour class a union of cycles, so
-$e\mid\alpha_i$ for each $i$, whence $e\mid\gcd(\alpha)=1$ --- contradicting $e>1$. Thus
-$N_\alpha(A_c)=0$ for $c\notin K$.
+The next theorem is the engine of the paper. It says that only the indices $c\in(v-1)\Zn$
+occur in Lemma~\ref{lem:disjoint}, and that the resulting correspondence between fixed words
+and fixed necklaces is uniformly $f_1$-to-one. Counting fixed necklaces therefore reduces to
+the cycle index of the single permutation $y\mapsto vy$. No hypothesis on $v$, on $n$ or on
+the number of colours is required.
+
+\begin{theorem}[collapse]\label{thm:collapse}
+Let $\alpha$ be any content with $\gcd(\alpha)=1$ and let $v\in\units{n}$. Then:
+\begin{enumerate}
+\item[\textup{(i)}] $N_\alpha(A_c)=0$ unless $f_1\mid c$, that is, unless $c\in(v-1)\Zn$;
+\item[\textup{(ii)}] the map $w\mapsto[w]$ from $\{w:w\circ v=w\}$ to the set of $v$-fixed
+      $\alpha$-necklaces is surjective, with every fibre of size exactly $f_1$;
+\item[\textup{(iii)}] $\displaystyle\#\Fix(v)\;=\;\frac{N_\alpha(v)}{f_1}$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) Let $\ell$ be a cycle length of $A_c$, say through $y$. Then
+$A_c^{\,\ell}(y)=v^{\ell}y+cS_\ell=y$, so the congruence $(v^{\ell}-1)y\equiv-cS_\ell$ is
+solvable and hence $f_\ell=\gcd(v^{\ell}-1,n)$ divides $cS_\ell$. Since $v-1$ divides
+$v^{\ell}-1$ we have $f_1\mid f_\ell$, so $f_1\mid cS_\ell$; and $v\equiv1\pmod{f_1}$ gives
+$S_\ell\equiv\ell\pmod{f_1}$. Therefore
+\begin{equation}\label{eq:divide}
+  f_1\;\bigm|\;c\,\ell\qquad\text{for every cycle length }\ell\text{ of }A_c,
+\end{equation}
+and consequently $e_c:=f_1/\gcd(f_1,c)$ divides \emph{every} cycle length of $A_c$. Suppose
+$f_1\nmid c$, so that $e_c>1$, and choose a prime $p\mid e_c$. Then $p\mid f_1\mid n$, and
+$p$ divides every cycle length of $A_c$. A word constant on the cycles of $A_c$ has each
+colour class a union of cycles, so $p\mid\alpha_i$ for every $i$ and hence
+$p\mid\gcd(\alpha)=1$, which is absurd. Thus $N_\alpha(A_c)=0$. Finally
+$\{c:f_1\mid c\}=f_1\Zn$ is the image of multiplication by $v-1$, since
+$\gcd(v-1,n)=f_1$.
+
+(ii) \emph{Surjectivity.} Let $[w]$ be $v$-fixed. By Lemma~\ref{lem:disjoint} there is a $c$
+with $w\circ A_c=w$, and by (i) we may write $c=(v-1)d$. Put $w'=w\circ\rho_{-d}$. Then
+$w'(vx)=w(vx-d)$ and $w'(x)=w(x-d)$, and substituting $y=x-d$ shows that $w'\circ v=w'$ is
+equivalent to $w(vy+(v-1)d)=w(y)$, i.e.\ to $w\circ A_c=w$. So $w'\in[w]$ is a $v$-fixed
+word.
+
+\emph{Fibres.} Let $w\circ v=w$ and $t\in\Zn$. The same substitution gives
+$(w\circ\rho_t)\circ v=w\circ\rho_t$ if and only if $w\circ A_{t(1-v)}=w$, which by the
+uniqueness clause of Lemma~\ref{lem:disjoint} forces $t(1-v)=0$, i.e.\ $t\in\Fix(v)$, a set
+of size $f_1$. As the rotation action is free, these $f_1$ rotates are distinct words, and
+they are precisely the $v$-fixed words in $[w]$.
+
+(iii) Immediate from (ii), since $|\{w:w\circ v=w\}|=N_\alpha(v)$.
+\end{proof}
+
+\begin{corollary}\label{cor:twocolour}
+Let $\gcd(n,k)=1$ and let $n_d$ denote the number of $\langle v\rangle$-orbits on $\Zn$ of
+size exactly $d$. Then
+\begin{equation}\label{eq:fixgf}
+  \#\Fix(v)\;=\;\frac1{f_1}\,[z^k]\prod_{d\mid m}\bigl(1+z^{d}\bigr)^{n_d}.
+\end{equation}
+\end{corollary}
+
+\begin{proof}
+A word of content $(k,n-k)$ constant on the $\langle v\rangle$-orbits is exactly a choice of
+a sub-multiset of orbits of total size $k$, and the generating function for the orbit sizes
+is $\prod_{d\mid m}(1+z^d)^{n_d}$. Apply Theorem~\ref{thm:collapse}(iii).
 \end{proof}
 
 \begin{remark}
-Step 3 is what makes the problem tractable: $|K|=\gcd(S,n)$ is typically a small divisor of
-$n$, so the sum has few terms, and each cycle type is computed in $O(n)$ steps.
+Theorem~\ref{thm:collapse} is strictly stronger than the observation that only $c$ with
+$cS_m=0$ can contribute: $(v-1)\Zn$ is contained in $\{c:cS_m=0\}$, usually properly, and
+the theorem also identifies the common value of the surviving terms. Computationally
+\eqref{eq:fixgf} replaces a sum of cycle-index computations by a single $O(n)$ orbit
+decomposition followed by one coefficient extraction.
 \end{remark}
 
 \section{The \texorpdfstring{$q$}{q}-analogue at a root of unity}\label{sec:eval}
@@ -270,44 +342,202 @@ $s>r$.
 \end{proof}
 
 Thus \eqref{eq:eval} is manifestly a rational integer for $s\in\{1,r-1\}$ and vanishes for
-$s>r$. For the remaining residues it is an algebraic number in $\Q(\zeta)$ which, in every
-case we have examined, is irrational; since a fixed-point count is a rational integer, those
-residues are obstructions. We isolate this as a hypothesis rather than assert it.
+$s>r$. We call the remaining residues
+\[
+  B(r)\;=\;\{0,2,3,\dots,r-2,r\}
+\]
+the \emph{bad} residues. For these the ratio is an algebraic number in $\Q(\zeta)$ whose
+rationality is a delicate matter, taken up in Section~\ref{sec:rational}.
 
-\begin{hypothesis}\label{hyp:bad}
-Let $\zeta$ be a primitive $m$-th root of unity and $2\le r<m$. For
-$s\in\{0,2,3,\dots,r-2,r\}$ the quantity $\qbin{r}{s}\big|_{q=\zeta}\big/[r]_\zeta$ is not a
-rational number.
-\end{hypothesis}
+Proposition~\ref{prop:lucas} degenerates when $m\mid n$, for then $r=0$ and $[n]_\zeta=0$.
+That case is governed by the following variant, which will be needed in
+Section~\ref{sec:sufficiency}.
 
-Hypothesis~\ref{hyp:bad} has been verified for all $m\le 96$ and all admissible $r,s$ in the
-course of the computations of Section~\ref{sec:verification}; we have not proved it.
+\begin{proposition}\label{prop:mdivn}
+Suppose $m\mid n$ and $\gcd(n,k)=1$, and set $a=n/m$, $b=\lfloor k/m\rfloor$,
+$s=k\bmod m$. Then $s\ge1$ and
+\begin{equation}\label{eq:evalm}
+  Y_{n,k}(\zeta_m)\;=\;\binom{a-1}{b}\,\sigma_s,
+  \qquad
+  \sigma_s\;=\;\frac{(-1)^{s-1}\,\zeta^{-s(s-1)/2}}{[s]_\zeta}.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+From $\qbin{n}{k}=(\qint{n}/\qint{k})\,\qbin{n-1}{k-1}$ we obtain the polynomial identity
+$Y_{n,k}(q)=\qbin{n-1}{k-1}/\qint{k}$, which avoids the vanishing of $\qint{n}$ at $\zeta$.
+Since $m\mid n$ and $\gcd(n,k)=1$ we have $\gcd(k,m)=1$, so $s\ge1$ and
+$[k]_\zeta=(1-\zeta^{k})/(1-\zeta)=(1-\zeta^{s})/(1-\zeta)=[s]_\zeta\ne0$. Writing
+$n-1=m(a-1)+(m-1)$ and $k-1=mb+(s-1)$, Proposition~\ref{prop:lucas} gives
+$\qbin{n-1}{k-1}\big|_\zeta=\binom{a-1}{b}\,\qbin{m-1}{s-1}\big|_\zeta$. Finally, for
+$0\le j\le m-1$,
+\begin{equation}\label{eq:qbinlast}
+  \qbin{m-1}{j}\Big|_{q=\zeta}
+  =\prod_{i=1}^{j}\frac{1-\zeta^{\,m-1-j+i}}{1-\zeta^{\,i}}
+  =\prod_{u=1}^{j}\frac{1-\zeta^{-u}}{1-\zeta^{\,u}}
+  =(-1)^{j}\,\zeta^{-j(j+1)/2},
+\end{equation}
+the middle equality by the substitution $u=j+1-i$ (legitimate since
+$m-1-j+i\equiv-(j+1-i)\bmod m$) and the last by
+$1-\zeta^{-u}=-\zeta^{-u}(1-\zeta^{u})$. Take $j=s-1$.
+\end{proof}
+
+\section{Rationality of the ratio}\label{sec:rational}
+
+Fix a primitive $m$-th root of unity $\zeta$ and integers $0\le s\le r<m$, and put
+\[
+  \rho_{r,s}\;=\;\frac{\qbin{r}{s}\big|_{q=\zeta}}{[r]_\zeta}\;\in\;\Q(\zeta).
+\]
+This is defined and non-zero: $[r]_\zeta\ne0$ since $m\nmid r$ for $1\le r<m$, and
+$\qbin{r}{s}\big|_\zeta\ne0$ since, by the computation in the proof of
+Proposition~\ref{prop:factor}, the factor $\Phi_m$ divides $\qbin{r}{s}$ only when
+$s\bmod m>r\bmod m$, that is only when $s>r$.
+
+\begin{proposition}[conjugation constraint]\label{prop:conj}
+If $\rho_{r,s}\in\Q$ then $m\mid r-1-s(r-s)$.
+\end{proposition}
+
+\begin{proof}
+Complex conjugation on $\Q(\zeta)$ sends $\zeta\mapsto\zeta^{-1}$. The Gaussian binomial is
+palindromic of degree $s(r-s)$, so $\qbinb{r}{s}{q^{-1}}=q^{-s(r-s)}\qbinb{r}{s}{q}$, while
+$[r]_{q^{-1}}=(1-q^{-r})/(1-q^{-1})=q^{\,1-r}[r]_{q}$. Hence
+\[
+  \overline{\rho_{r,s}}\;=\;\zeta^{\,r-1-s(r-s)}\,\rho_{r,s}.
+\]
+A rational number equals its conjugate, and $\rho_{r,s}\ne0$ may be cancelled, leaving
+$\zeta^{\,r-1-s(r-s)}=1$.
+\end{proof}
+
+\begin{corollary}\label{cor:qintirr}
+For $2\le r<m$ the $q$-integer $[r]_\zeta$ is irrational. Hence
+$\rho_{r,0}=\rho_{r,r}=1/[r]_\zeta$ is irrational for $2\le r<m$.
+\end{corollary}
+
+\begin{proof}
+Apply Proposition~\ref{prop:conj} with $s=0$: rationality of $1/[r]_\zeta$, equivalently of
+$[r]_\zeta$, would force $m\mid r-1$, impossible for $2\le r<m$.
+\end{proof}
+
+The case $r=m-1$ is completely explicit, and it is exactly where rationality does occur.
+
+\begin{proposition}\label{prop:rlast}
+For $0\le s\le m-1$,
+\[
+  \rho_{m-1,s}\;=\;(-1)^{s+1}\,\zeta^{\,1-s(s+1)/2},
+\]
+an algebraic number of modulus $1$. It is rational if and only if
+$\zeta^{\,1-s(s+1)/2}=\pm1$, and its value is then $\pm1$.
+\end{proposition}
+
+\begin{proof}
+By \eqref{eq:qbinlast}, $\qbin{m-1}{s}\big|_\zeta=(-1)^{s}\zeta^{-s(s+1)/2}$, while
+$[m-1]_\zeta=(1-\zeta^{-1})/(1-\zeta)=-\zeta^{-1}$. Divide.
+\end{proof}
+
+\begin{remark}[the irrationality hypothesis is false]\label{rem:hypfalse}
+An earlier version of this work assumed that $\rho_{r,s}$ is irrational for every $2\le r<m$
+and every bad $s\in B(r)$. Proposition~\ref{prop:rlast} refutes this. The smallest
+counterexample is $m=9$, $r=8$, $s=4$, where $1-s(s+1)/2=-9\equiv0\pmod9$ and hence
+$\rho_{8,4}=(-1)^{5}=-1$. An exhaustive search --- made feasible by
+Proposition~\ref{prop:conj}, which confines the candidates to a congruence class --- finds
+exactly $67$ pairs with $m\le60$ and $s\in B(r)$ for which $\rho_{r,s}$ is rational. Every
+one has $r=m-1$, and every value is $\pm1$; the first few are listed in
+Table~\ref{tab:counterex}. The consequences for the converse direction are dealt with in
+Section~\ref{sec:crystal}.
+\end{remark}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{rrlr}
+$m$ & $r$ & bad $s$ with $\rho_{r,s}\in\Q$ & $\rho_{r,s}$\\\hline
+$9$  & $8$  & $4$      & $-1$\\
+$10$ & $9$  & $3,\ 6$  & $-1$\\
+$14$ & $13$ & $5,\ 8$  & $+1$\\
+$18$ & $17$ & $4,\ 13$ & $+1$\\
+$18$ & $17$ & $7,\ 10$ & $-1$\\
+$20$ & $19$ & $6,\ 13$ & $-1$\\
+\end{tabular}
+\caption{The first counterexamples to the irrationality hypothesis: bad residues at which
+$\rho_{r,s}$ is nevertheless rational. All of them have $r=m-1$.}
+\label{tab:counterex}
+\end{table}
+
+What survives is the following restricted statement, which is what
+Section~\ref{sec:crystal} actually requires. It has been verified for all $m\le60$ and all
+admissible $r,s$, using Proposition~\ref{prop:conj} to prune the search.
+
+\begin{conjecture}\label{conj:irr}
+Let $\zeta$ be a primitive $m$-th root of unity and $2\le r\le m-2$. Then $\rho_{r,s}$ is
+irrational for every bad residue $s\in B(r)$.
+\end{conjecture}
+
+\begin{remark}\label{rem:modulusone}
+A weaker statement suffices for Theorem~\ref{thm:necessity}, namely: \emph{if $\rho_{r,s}$
+is rational then $|\rho_{r,s}|=1$}. Proposition~\ref{prop:rlast} proves this for $r=m-1$,
+and it holds in every case computed.
+\end{remark}
 
 \section{The criterion}\label{sec:criterion}
 
-\begin{conjecture}[Criterion]\label{conj:main}
-Let $n\ge3$ and $v\in\units{n}$ of order $m>1$, and put $f_e=\gcd(v^e-1,n)$. Then
-\[
-  Y_{n,k}(\zeta_m)\;=\;\#\{\,k\text{-subset necklaces of }\Zn\text{ fixed by }v\,\}
-  \qquad\text{for every }k\text{ coprime to }n
-\]
-if and only if, for every proper divisor $e$ of $m$,
+\begin{definition}\label{def:criterion}
+Let $n\ge3$ and $v\in\units{n}$ of order $m>1$, and put $f_e=\gcd(v^e-1,n)$. We say that $v$
+satisfies the \emph{criterion} if for every proper divisor $e$ of $m$,
 \begin{enumerate}
   \item[\textup{(i)}] $\varphi(f_e)\le 2$, equivalently $f_e\in\{1,2,3,4,6\}$; and
   \item[\textup{(ii)}] $\rad(f_e)\mid m$.
 \end{enumerate}
+We say that $v$ \emph{sieves} if
+\[
+  Y_{n,k}(\zeta_m)\;=\;\#\{\,k\text{-subset necklaces of }\Zn\text{ fixed by }v\,\}
+  \qquad\text{for every }k\text{ coprime to }n .
+\]
+\end{definition}
+
+Since $f_e\mid f_{e'}$ whenever $e\mid e'$, the criterion need only be tested at the maximal
+proper divisors of $m$.
+
+\begin{lemma}\label{lem:maximal}
+$v$ satisfies the criterion if and only if $g_p:=f_{m/p}\in\{1,2,3,4,6\}$ and
+$\rad(g_p)\mid m$ for every prime $p\mid m$.
+\end{lemma}
+
+\begin{proof}
+Necessity is immediate. Conversely, every proper divisor $e$ of $m$ divides $m/p$ for some
+prime $p\mid m$, so $f_e\mid g_p$; every divisor of an element of $\{1,2,3,4,6\}$ again lies
+in $\{1,2,3,4,6\}$, and $\rad(f_e)\mid\rad(g_p)\mid m$.
+\end{proof}
+
+The two implications are in very different states, and we separate them.
+
+\begin{theorem}[sufficiency]\label{thm:sufficiency}
+If $v$ satisfies the criterion then $v$ sieves.
+\end{theorem}
+
+Theorem~\ref{thm:sufficiency} is proved in Section~\ref{sec:sufficiency}. It applies to
+every multiplier, with no uniformity hypothesis. The converse is established in
+Section~\ref{sec:crystal} for uniform multipliers with $f<m$, modulo
+Conjecture~\ref{conj:irr}; in general it is verified but unproved.
+
+\begin{conjecture}[converse]\label{conj:converse}
+If $v$ sieves then $v$ satisfies the criterion.
 \end{conjecture}
 
 Since the cyclic sieving phenomenon of Definition~\ref{def:csp} for the group
 $\langle u\rangle$ requires the identity at every power $u^{d}$, and $u^{d}$ is itself a
-multiplier, Conjecture~\ref{conj:main} determines the full \CSP{} by conjunction over the
+multiplier, Theorem~\ref{thm:sufficiency} determines the full \CSP{} by conjunction over the
 divisors of $\ord_n(u)$.
 
 \begin{corollary}[uniform case]\label{cor:uniform}
 If $v$ is uniform then $f_e=f$ for every proper divisor $e$ of $m$, and the criterion reads:
-sieving holds if and only if $f\in\{1,2,3,4,6\}$ and $\rad(f)\mid m$. In particular the
-verdict depends only on the pair $(m,f)$ --- not on $n$, and not on the number of orbits.
+$f\in\{1,2,3,4,6\}$ and $\rad(f)\mid m$. In particular the verdict depends only on the pair
+$(m,f)$ --- not on $n$, and not on the number of orbits.
 \end{corollary}
+
+\begin{proof}
+If $e\mid m$ is proper and $v^{e}x=x$, the $\langle v\rangle$-orbit of $x$ has size dividing
+$e<m$, so by uniformity it has size $1$. Hence $\Fix(v^{e})=\Fix(v)$ and $f_e=f$.
+\end{proof}
 
 The independence from $n$ asserted in Corollary~\ref{cor:uniform} is a striking feature of
 the data and was the first indication that a clean statement existed; see
@@ -513,6 +743,262 @@ unity is required to be rational.}
 \label{fig:orders}
 \end{figure}
 
+\section{What the criterion says}\label{sec:structure}
+
+Write
+\[
+  P\;=\;\bigl\{\,y\in\Zn:\ \text{the }\langle v\rangle\text{-orbit of }y
+        \text{ has size}<m\,\bigr\}
+   \;=\;\bigcup_{p\mid m\ \mathrm{prime}}\Fix\bigl(v^{\,m/p}\bigr),
+\]
+the second equality because a period smaller than $m$ divides $m/p$ for some prime $p\mid m$.
+Each $\Fix(v^{e})$ is the unique subgroup of the cyclic group $\Zn$ of order $f_e$, so $P$ is
+a union of cyclic subgroups of orders $g_p=f_{m/p}$.
+
+\begin{lemma}[no clash]\label{lem:noclash}
+Assume $v$ satisfies the criterion. Then the integers $g_p$, for $p\mid m$ prime, are totally
+ordered by divisibility.
+\end{lemma}
+
+\begin{proof}
+By Lemma~\ref{lem:maximal} every $g_p$ lies in $\{1,2,3,4,6\}$, whose incomparable pairs are
+$\{2,3\}$, $\{3,4\}$ and $\{4,6\}$. Two facts are used throughout: $g_p\mid n$; and if
+$2\mid n$ then $v$ is odd, so $2\mid v-1\mid v^{e}-1$ and hence $2\mid f_e$ for every $e$.
+
+\emph{$\{2,3\}$.} If $g_p=2$ then $2\mid n$, so every $f_e$ is even, contradicting the
+oddness of $g_q=3$.
+
+\emph{$\{3,4\}$.} If $g_q=4$ then $4\mid n$, so again every $f_e$ is even, contradicting
+$g_p=3$.
+
+\emph{$\{4,6\}$.} Suppose $g_p=4$ and $g_q=6$ with $p\ne q$. Then $4\mid n$ and $6\mid n$, so
+$12\mid n$. Since $\gcd(v^{m/p}-1,n)=4$ and $3\mid n$, we get $3\nmid v^{m/p}-1$; hence
+$\ord_3(v)\ne1$, so $\ord_3(v)=2$ and $2\nmid m/p$. Since $\gcd(v^{m/q}-1,n)=6$ and
+$4\mid n$, we get $4\nmid v^{m/q}-1$; hence $\ord_4(v)=2$ and $2\nmid m/q$. But $3\mid n$
+forces $\ord_3(v)\mid m$, so $2\mid m$; then $2\nmid m/p$ forces $p=2$, and likewise $q=2$,
+contradicting $p\ne q$.
+\end{proof}
+
+\begin{theorem}[structure]\label{thm:structure}
+Let $v\in\units{n}$ have order $m>1$ and put $L=\max_p g_p$. If $v$ satisfies the criterion
+then $P$ is precisely the cyclic subgroup $C_L\le\Zn$ of order $L$, with
+\[
+  L\in\{1,2,3,4,6\},\qquad \rad(L)\mid m,
+\]
+and $v$ acts on $C_L$ as $+1$ or $-1$. Conversely, if $P$ is a subgroup of order $L$ with
+$\varphi(L)\le2$ and $\rad(L)\mid m$, then $v$ satisfies the criterion.
+\end{theorem}
+
+\begin{proof}
+Assume the criterion. By Lemma~\ref{lem:noclash} the subgroups $\Fix(v^{m/p})=C_{g_p}$ are
+nested, so their union $P$ is the largest of them, namely $C_L$; and $L=g_{p_0}$ lies in
+$\{1,2,3,4,6\}$ with $\rad(L)\mid m$ by Lemma~\ref{lem:maximal}. The subgroup $C_L$ is
+$\langle v\rangle$-stable, and under the isomorphism $C_L\cong\Z/L\Z$ the multiplier acts as
+multiplication by $v\bmod L$, an element of $\units{L}$. That group has order
+$\varphi(L)\le2$ and therefore equals $\{\pm1\}$.
+
+Conversely, if $P$ is a subgroup of order $L$ with $\varphi(L)\le2$ and $\rad(L)\mid m$, then
+for every prime $p\mid m$ the group $\Fix(v^{m/p})$ is a subgroup of $P$, so $g_p\mid L$.
+Every divisor of an element of $\{1,2,3,4,6\}$ again lies in that set, and
+$\rad(g_p)\mid\rad(L)\mid m$; apply Lemma~\ref{lem:maximal}.
+\end{proof}
+
+Theorem~\ref{thm:structure} is a reformulation rather than a consequence: \emph{the criterion
+says exactly that the points of period less than $m$ form a subgroup of crystallographic
+order whose radical divides $m$.} Since $v$ then acts on that subgroup as $\pm1$, its orbits
+have size $1$ or $2$, and only eight configurations are possible; all eight occur
+(Figure~\ref{fig:shapes}).
+
+\begin{figure}[h]
+\centering
+\setlength{\unitlength}{1cm}%
+\begin{picture}(13.2,2.25)(-0.66,-1.58)
+  % --- L=1, eps=+1
+  \put(0,0){\textcolor{gridgray}{\circle{1.24}}}
+  \put(0,0.62){\textcolor{azurite}{\circle*{0.16}}}
+  \put(-0.6,-1.04){\makebox(1.2,0.42)[b]{\footnotesize $L=1$}}
+  \put(-0.8,-1.5){\makebox(1.6,0.36)[b]{\tiny $\varepsilon=+1$}}
+  % --- L=2, eps=+1
+  \put(1.7,0){\textcolor{gridgray}{\circle{1.24}}}
+  \put(1.7,0.62){\textcolor{azurite}{\circle*{0.16}}}
+  \put(1.7,-0.62){\textcolor{azurite}{\circle*{0.16}}}
+  \put(1.1,-1.04){\makebox(1.2,0.42)[b]{\footnotesize $L=2$}}
+  \put(0.9,-1.5){\makebox(1.6,0.36)[b]{\tiny $\varepsilon=+1$}}
+  % --- L=3, eps=+1
+  \put(3.4,0){\textcolor{gridgray}{\circle{1.24}}}
+  \put(3.4,0.62){\textcolor{azurite}{\circle*{0.16}}}
+  \put(3.9369,-0.31){\textcolor{azurite}{\circle*{0.16}}}
+  \put(2.8631,-0.31){\textcolor{azurite}{\circle*{0.16}}}
+  \put(2.8,-1.04){\makebox(1.2,0.42)[b]{\footnotesize $L=3$}}
+  \put(2.6,-1.5){\makebox(1.6,0.36)[b]{\tiny $\varepsilon=+1$}}
+  % --- L=3, eps=-1
+  \put(5.1,0){\textcolor{gridgray}{\circle{1.24}}}
+  \put(4.5631,-0.31){\textcolor{oxide}{\line(1,0){1.0738}}}
+  \put(5.1,0.62){\textcolor{azurite}{\circle*{0.16}}}
+  \put(5.6369,-0.31){\textcolor{oxide}{\circle*{0.16}}}
+  \put(4.5631,-0.31){\textcolor{oxide}{\circle*{0.16}}}
+  \put(4.5,-1.04){\makebox(1.2,0.42)[b]{\footnotesize $L=3$}}
+  \put(4.3,-1.5){\makebox(1.6,0.36)[b]{\tiny $\varepsilon=-1$}}
+  % --- L=4, eps=+1
+  \put(6.8,0){\textcolor{gridgray}{\circle{1.24}}}
+  \put(6.8,0.62){\textcolor{azurite}{\circle*{0.16}}}
+  \put(7.42,0){\textcolor{azurite}{\circle*{0.16}}}
+  \put(6.8,-0.62){\textcolor{azurite}{\circle*{0.16}}}
+  \put(6.18,0){\textcolor{azurite}{\circle*{0.16}}}
+  \put(6.2,-1.04){\makebox(1.2,0.42)[b]{\footnotesize $L=4$}}
+  \put(6.0,-1.5){\makebox(1.6,0.36)[b]{\tiny $\varepsilon=+1$}}
+  % --- L=4, eps=-1
+  \put(8.5,0){\textcolor{gridgray}{\circle{1.24}}}
+  \put(7.88,0){\textcolor{oxide}{\line(1,0){1.24}}}
+  \put(8.5,0.62){\textcolor{azurite}{\circle*{0.16}}}
+  \put(8.5,-0.62){\textcolor{azurite}{\circle*{0.16}}}
+  \put(9.12,0){\textcolor{oxide}{\circle*{0.16}}}
+  \put(7.88,0){\textcolor{oxide}{\circle*{0.16}}}
+  \put(7.9,-1.04){\makebox(1.2,0.42)[b]{\footnotesize $L=4$}}
+  \put(7.7,-1.5){\makebox(1.6,0.36)[b]{\tiny $\varepsilon=-1$}}
+  % --- L=6, eps=+1
+  \put(10.2,0){\textcolor{gridgray}{\circle{1.24}}}
+  \put(10.2,0.62){\textcolor{azurite}{\circle*{0.16}}}
+  \put(10.7369,0.31){\textcolor{azurite}{\circle*{0.16}}}
+  \put(10.7369,-0.31){\textcolor{azurite}{\circle*{0.16}}}
+  \put(10.2,-0.62){\textcolor{azurite}{\circle*{0.16}}}
+  \put(9.6631,-0.31){\textcolor{azurite}{\circle*{0.16}}}
+  \put(9.6631,0.31){\textcolor{azurite}{\circle*{0.16}}}
+  \put(9.6,-1.04){\makebox(1.2,0.42)[b]{\footnotesize $L=6$}}
+  \put(9.4,-1.5){\makebox(1.6,0.36)[b]{\tiny $\varepsilon=+1$}}
+  % --- L=6, eps=-1
+  \put(11.9,0){\textcolor{gridgray}{\circle{1.24}}}
+  \put(11.3631,0.31){\textcolor{oxide}{\line(1,0){1.0738}}}
+  \put(11.3631,-0.31){\textcolor{oxide}{\line(1,0){1.0738}}}
+  \put(11.9,0.62){\textcolor{azurite}{\circle*{0.16}}}
+  \put(11.9,-0.62){\textcolor{azurite}{\circle*{0.16}}}
+  \put(12.4369,0.31){\textcolor{oxide}{\circle*{0.16}}}
+  \put(12.4369,-0.31){\textcolor{oxide}{\circle*{0.16}}}
+  \put(11.3631,-0.31){\textcolor{oxide}{\circle*{0.16}}}
+  \put(11.3631,0.31){\textcolor{oxide}{\circle*{0.16}}}
+  \put(11.3,-1.04){\makebox(1.2,0.42)[b]{\footnotesize $L=6$}}
+  \put(11.1,-1.5){\makebox(1.6,0.36)[b]{\tiny $\varepsilon=-1$}}
+\end{picture}
+\caption{The eight admissible shapes of the non-generic part $P=C_L$ under the criterion
+(Theorem~\ref{thm:structure}). Points fixed by the multiplier are drawn in azurite; the
+two-element orbits, which occur when $v$ acts as $-1$, are drawn in oxide and joined by their
+chord. Every criterion-satisfying multiplier with $n\le400$ realises one of these eight, and
+each of the eight is realised.}
+\label{fig:shapes}
+\end{figure}
+
+\section{Proof of sufficiency}\label{sec:sufficiency}
+
+Throughout this section $v$ satisfies the criterion, and $L$ and $C_L$ are as in
+Theorem~\ref{thm:structure}. Write $f=f_1$, let $n_m$ be the number of
+$\langle v\rangle$-orbits of size $m$, and set
+\[
+  Q(z)\;=\;\prod_{|O|<m}\bigl(1+z^{|O|}\bigr),
+\]
+the product taken over the orbits contained in $P$. Then $n=L+mn_m$, and
+Corollary~\ref{cor:twocolour} reads
+\begin{equation}\label{eq:split}
+  \#\Fix(v)\;=\;\frac1{f}\,[z^k]\,N(z),
+  \qquad N(z)\;=\;Q(z)\,\bigl(1+z^{m}\bigr)^{n_m}.
+\end{equation}
+Identity \eqref{eq:split}, and the expansion \eqref{eq:expand} below, are formal consequences
+of Corollary~\ref{cor:twocolour} and the definition of $Q$; they hold for every multiplier.
+Only the three lemmas that follow, and the proof of Theorem~\ref{thm:sufficiency}, invoke the
+criterion.
+
+\begin{lemma}\label{lem:Q}
+$Q$ is palindromic of degree $L$, and $[z^{1}]Q=[z^{\,L-1}]Q=f$.
+\end{lemma}
+
+\begin{proof}
+Each factor $1+z^{|O|}$ is palindromic, hence so is the product, and
+$\deg Q=\sum_{|O|<m}|O|=|P|=L$. The coefficient of $z^{1}$ counts the orbits of size $1$,
+that is $|\Fix(v)|=f$, and palindromicity gives $[z^{L-1}]Q=[z^{1}]Q$.
+\end{proof}
+
+\begin{lemma}\label{lem:residuesL}
+Let $s=k\bmod m$ for some $k$ coprime to $n$. Then $\gcd(s,\rad(L))=1$. If in addition
+$L\ge2$ and $0\le s\le L$, then $s\in\{1,L-1\}$.
+\end{lemma}
+
+\begin{proof}
+Let $p$ be a prime dividing $\rad(L)$. Then $p\mid L\mid n$ and $p\mid\rad(L)\mid m$; if
+$p\mid s$ then $p\mid k$, contradicting $\gcd(n,k)=1$. For the second claim, $s=0$ and $s=L$
+are divisible by every prime factor of $L$ and so are excluded. It remains to see that every
+$s$ with $2\le s\le L-2$ shares a prime factor with $L$; this range is empty for $L=2,3$,
+consists of $s=2$ for $L=4$, and of $s=2,3,4$ for $L=6$, and in each case the assertion
+holds. It is precisely here that $\varphi(L)\le2$ is used: for $L=5$ the residue $s=2$ would
+survive, and for $L\ge7$ some prime below $L-1$ fails to divide $L$.
+\end{proof}
+
+\begin{lemma}\label{lem:dichotomy}
+Put $r=n\bmod m$. Then $r=L\bmod m$, and exactly one of the following holds:
+\begin{enumerate}
+\item[\textup{(a)}] $m>L$; then $r=L\ge1$ and $m\nmid n$;
+\item[\textup{(b)}] $m\le L$; then $(L,m)\in\{(2,2),(3,3),(4,2),(4,4),(6,6)\}$, $r=0$ and
+      $m\mid n$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+$n=L+mn_m$ gives $r=L\bmod m$. In case (a), $r=L$, and $L\ge1$ because $0\in P$. In case
+(b), $L\in\{1,2,3,4,6\}$ with $\rad(L)\mid m$ and $2\le m\le L$ leaves exactly the five
+listed pairs, and in each $m\mid L$, so $r=0$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\textup{\ref{thm:sufficiency}}]
+Fix $k$ coprime to $n$ and put $b=\lfloor k/m\rfloor$ and $s=k\bmod m$. By \eqref{eq:split}
+it suffices to show $[z^k]N(z)=f\,Y_{n,k}(\zeta_m)$. Expanding \eqref{eq:split} and
+substituting $i=b-j$ for the exponent of $(1+z^m)^{n_m}$,
+\begin{equation}\label{eq:expand}
+  [z^k]N\;=\;\sum_{j\ge0}\binom{n_m}{\,b-j\,}\,[z^{\,jm+s}]\,Q .
+\end{equation}
+
+\emph{Case \textup{(a)}: $m\nmid n$.} By Lemma~\ref{lem:dichotomy}, $r=L<m$, and
+$n_m=\lfloor n/m\rfloor=:a$ because $n=L+mn_m$ with $L<m$. Every
+term of \eqref{eq:expand} with $j\ge1$ vanishes, since then $jm+s\ge m>L=\deg Q$; hence
+$[z^k]N=\binom{a}{b}\,[z^{s}]Q$. On the other side \eqref{eq:eval} gives
+$Y_{n,k}(\zeta_m)=\binom{a}{b}\rho_{L,s}$, so it suffices to prove $[z^{s}]Q=f\rho_{L,s}$.
+If $s>L$ then both sides vanish, because $\deg Q=L$ and $\qbin{L}{s}=0$. If $L\ge2$ and
+$s\le L$ then $s\in\{1,L-1\}$ by Lemma~\ref{lem:residuesL}, whence $\rho_{L,s}=1$ by
+Corollary~\ref{cor:rational}, while $[z^{s}]Q=f$ by Lemma~\ref{lem:Q}. If $L=1$ then $f=1$, $Q=1+z$, and $\rho_{1,s}=1$ for $s\in\{0,1\}$, so
+both sides equal $1$.
+
+\emph{Case \textup{(b)}: $m\mid n$.} Here $r=0$, $u:=L/m\ge1$ is an integer and
+$a:=n/m=n_m+u$. By Vandermonde's identity
+$\binom{a-1}{b}=\sum_{j\ge0}\binom{u-1}{j}\binom{n_m}{\,b-j\,}$, so comparing
+\eqref{eq:expand} with \eqref{eq:evalm} it suffices to prove
+\begin{equation}\label{eq:target}
+  [z^{\,jm+s}]Q\;=\;f\,\sigma_s\binom{u-1}{j}\qquad\text{for every }j\ge0 .
+\end{equation}
+For each of the five pairs $\rad(L)=\rad(m)$, so Lemma~\ref{lem:residuesL} says that the
+attainable residues are those $s\in\{0,\dots,m-1\}$ coprime to $m$, namely $s\in\{1,m-1\}$.
+Now $\sigma_1=1$, and by \eqref{eq:qbinlast} together with $[m-1]_\zeta=-\zeta^{-1}$,
+\[
+  \sigma_{m-1}\;=\;(-1)^{m-1}\,\zeta^{\,1-(m-1)(m-2)/2}\;=\;1
+  \qquad\text{for } m\in\{2,3,4,6\},
+\]
+the four values of the exponent being $1,0,-2,-9$ against $\zeta$ of order $2,3,4,6$
+respectively. Hence \eqref{eq:target} reduces to $[z^{\,jm+s}]Q=f\binom{u-1}{j}$.
+
+If $u=1$, that is $(L,m)\in\{(2,2),(3,3),(4,4),(6,6)\}$, then $\binom{0}{j}$ vanishes unless
+$j=0$. For $j=0$ we need $[z^{s}]Q=f$ with $s\in\{1,m-1\}=\{1,L-1\}$, which is
+Lemma~\ref{lem:Q}; for $j\ge1$ we have $jm+s>m=L=\deg Q$ and both sides vanish.
+
+If $(L,m)=(4,2)$ then $u=2$ and $s=1$, and \eqref{eq:target} reads
+$[z^{2j+1}]Q=f\binom{1}{j}$. For $j=0$ this is $[z^{1}]Q=f$ and for $j=1$ it is
+$[z^{3}]Q=[z^{L-1}]Q=f$, both by Lemma~\ref{lem:Q}; for $j\ge2$ we have $2j+1>4=\deg Q$ and
+both sides vanish.
+\end{proof}
+
+\begin{remark}
+The argument is short because Theorem~\ref{thm:structure} has converted the criterion into
+two properties of the single polynomial $Q$: it is palindromic of degree $L$ with linear
+coefficient $f$, and the residues attainable subject to $\gcd(n,k)=1$ are exactly
+$\{1,L-1\}$. The second is the crystallographic restriction. At no point does the proof need
+to know which of $1,2,3,4,6$ the integer $L$ is.
+\end{remark}
+
 \section{The crystallographic restriction}\label{sec:crystal}
 
 The plane crystallographic restriction says that a lattice in $\R^2$ admits rotational
@@ -573,23 +1059,48 @@ no $f\ge7$ satisfies the condition.
 
 \begin{theorem}[necessity of the crystallographic restriction]\label{thm:necessity}
 Let $v$ be a uniform multiplier of order $m$ with $f<m$, and assume
-Hypothesis~\ref{hyp:bad}. If the sieving identity of Conjecture~\ref{conj:main} holds for
-every $k$ coprime to $n$, then
+Conjecture~\ref{conj:irr}. If $v$ sieves, then
 \[
   f\in\{1,2,3,4,6\}\qquad\text{and}\qquad \rad(f)\mid m .
 \]
+When $f=m-1$ the appeal to Conjecture~\ref{conj:irr} may be dropped.
 \end{theorem}
 
 \begin{proof}
-Uniformity gives $n=f+mt$ where $t$ is the number of orbits of size $m$, so
-$r:=n\bmod m=f\bmod m=f$, using $f<m$. Let $s=k\bmod m$.
+Uniformity gives $n=f+ma$, where $a$ is the number of orbits of size $m$; since $f<m$ we
+have $r:=n\bmod m=f$, and moreover $P=\Fix(v)$, $Q(z)=(1+z)^{f}$ and $n_m=a$. Let
+$s=k\bmod m$ and $b=\lfloor k/m\rfloor$; then $b\le\lfloor(n-1)/m\rfloor=a$, so
+$\binom{a}{b}\ge1$. Exactly as in Case (a) of the proof of Theorem~\ref{thm:sufficiency} ---
+an argument which uses only $\deg Q=f<m$, and not the criterion --- identities
+\eqref{eq:expand} and \eqref{eq:eval} give
+\[
+  [z^k]N=\binom{a}{b}\binom{f}{s},
+  \qquad
+  f\,Y_{n,k}(\zeta_m)=f\binom{a}{b}\rho_{f,s},
+\]
+so by \eqref{eq:split} the sieving identity at $k$ is equivalent to
+\begin{equation}\label{eq:necessary}
+  \rho_{f,s}\;=\;\binom{f}{s}\Big/f .
+\end{equation}
+In particular $\rho_{f,s}$ must be \emph{rational} for every attainable $s$. We show that no
+$s$ in the bad set $B=B(f)=\{0,2,3,\dots,f-2,f\}$ is attainable; note that $B$ is empty
+unless $f\ge2$.
 
-By \eqref{eq:eval}, $Y_{n,k}(\zeta_m)=\binom{a}{b}\cdot
-\qbin{r}{s}|_{\zeta}/[r]_\zeta$ with $a=\lfloor n/m\rfloor\ge b=\lfloor k/m\rfloor$, so
-$\binom{a}{b}\ge1$. If $s$ lies in the \emph{bad set}
-$B=\{0,2,3,\dots,r-2,r\}$ then, by Hypothesis~\ref{hyp:bad}, $Y_{n,k}(\zeta_m)\notin\Q$,
-whereas the right-hand side of the sieving identity is a non-negative integer. Hence no
-$k$ coprime to $n$ may have $k\bmod m\in B$. By Lemma~\ref{lem:residues} this says
+For $s\in\{0,f\}$ we have $\rho_{f,s}=1/[f]_\zeta$, so \eqref{eq:necessary} would force
+$[f]_\zeta=f\in\Q$, contradicting Corollary~\ref{cor:qintirr} since $2\le f<m$. This case
+is unconditional.
+
+For $2\le s\le f-2$ --- a range non-empty only when $f\ge4$ --- the right-hand side of
+\eqref{eq:necessary} obeys
+\[
+  \binom{f}{s}\Big/f\;\ge\;\binom{f}{2}\Big/f\;=\;\frac{f-1}{2}\;>\;1 .
+\]
+If $f\le m-2$, then $\rho_{f,s}$ is irrational by Conjecture~\ref{conj:irr} and
+\eqref{eq:necessary} fails. If $f=m-1$, then $|\rho_{f,s}|=1$ by
+Proposition~\ref{prop:rlast}, and \eqref{eq:necessary} fails on absolute values. In either
+case $s$ is not attainable.
+
+Hence no $k$ coprime to $n$ has $k\bmod m\in B$. By Lemma~\ref{lem:residues} this says
 $\gcd(s,g)>1$ for every $s\in B$, where $g=\gcd(m,n)$.
 
 In particular, for every prime $q$ with $2\le q\le r=f$ and $q\ne f-1$ we have $q\in B$ and
@@ -604,12 +1115,33 @@ already treated, giving $q\mid g\mid m$. As this holds for every prime divisor o
 conclude $\rad(f)\mid m$.
 \end{proof}
 
+\begin{remark}[where the false hypothesis was felt]\label{rem:99}
+The step that would fail without Proposition~\ref{prop:rlast} is the treatment of
+$2\le s\le f-2$ when $f=m-1$. The smallest multiplier at which it is actually needed is
+\[
+  n=99,\qquad v=19,
+\]
+for which $m=10$, $f=9=m-1$, $v$ is uniform, and $s=3$ is attainable --- take $k=13$. The
+earlier argument would have asserted $Y_{99,13}(\zeta_{10})\notin\Q$; in truth
+$\rho_{9,3}=-1$ by Proposition~\ref{prop:rlast}, so that
+\[
+  Y_{99,13}(\zeta_{10})\;=\;\binom{9}{1}\rho_{9,3}\;=\;-9,
+\]
+a rational --- indeed negative --- integer, whereas the true number of fixed necklaces is
+$\binom91\binom93/9=84$. Sieving does fail here, as it must, but on numerical rather than
+rationality grounds. We note that $99>96$, the largest $n$ reached by the verification of
+Section~\ref{sec:verification} at the time the hypothesis was formulated; neither the proof
+nor the computation could have detected the gap.
+\end{remark}
+
 \begin{remark}
-Theorem~\ref{thm:necessity} covers uniform multipliers with $f<m$. When $f\ge m$ (in
-particular when $m\mid n$, where $r=0$ and Proposition~\ref{prop:lucas} degenerates) the
-same conclusion is observed in every computed case but the argument above does not apply
-verbatim. Sufficiency, and the multi-level form of Conjecture~\ref{conj:main} for
-non-uniform $v$, remain unproved.
+Theorem~\ref{thm:necessity} covers uniform multipliers with $f<m$; together with
+Theorem~\ref{thm:sufficiency} it settles that case completely, modulo
+Conjecture~\ref{conj:irr}. When $f\ge m$ --- in particular when $m\mid n$, where
+Proposition~\ref{prop:lucas} degenerates and Proposition~\ref{prop:mdivn} must be used
+instead --- the same conclusion is observed in every computed case, but the argument above
+does not apply verbatim. Conjecture~\ref{conj:converse} for non-uniform multipliers remains
+open.
 \end{remark}
 
 \begin{remark}[why the coincidence is not one]
@@ -628,22 +1160,38 @@ $\Z[q]/(\Phi_m(q))$ for root-of-unity evaluations. No floating point is used any
 
 \paragraph{Method.} The polynomial side is computed from Proposition~\ref{prop:factor} as a
 product of cyclotomic polynomials reduced modulo $\Phi_m$; the fixed-point side from
-Lemma~\ref{lem:fix}. Both were cross-validated against independent routes: the factorisation
-against direct polynomial division of $\qbin{n}{k}$ by $\qint{n}$ for all $n<30$, and the
-fixed-point formula against brute-force enumeration of necklaces.
+Corollary~\ref{cor:twocolour}. Both were cross-validated against independent routes: the
+factorisation against direct polynomial division of $\qbin{n}{k}$ by $\qint{n}$ for all
+$n<30$, and the fixed-point formula both against the affine sum of Lemma~\ref{lem:disjoint}
+over all $c\in\Zn$ and against brute-force enumeration of necklaces. Rationality of an
+element of $\Z[q]/(\Phi_m)$ is decided by comparing it with a rational multiple of the
+reduced denominator, so no root of unity is ever approximated.
 
-\paragraph{Scope.} Each multiplier is tested against \emph{every} admissible $k$, so the
-number of individual instances is in the tens of thousands.
+\paragraph{Scope.} Each multiplier is tested against \emph{every} admissible $k$; the
+``instances'' column counts multipliers for the criterion rows and individual checks
+otherwise.
 
 \begin{table}[h]
 \centering
 \small
-\begin{tabular}{lrrr}
-Form of the criterion & range & multipliers & counterex.\\\hline
-General (all $e\mid m$, no uniformity) & $4\le n\le 96$ & $2{,}709$ & $0$\\
-Uniform $(m,f)$ form (Cor.~\ref{cor:uniform}) & $4\le n\le 115$ & $2{,}682$ & $0$\\
+\begin{tabular}{llrr}
+Statement & range & instances & counterex.\\\hline
+Thm.~\ref{thm:collapse}, two colours, criterion \emph{not} assumed & $n\le 60$ & $29{,}780$ & $0$\\
+Thm.~\ref{thm:collapse}, three colours, every content & $n\le 28$ & $34{,}186$ & $0$\\
+Thm.~\ref{thm:structure}, structure of $P$ & $n\le 400$ & $19{,}820$ & $0$\\
+Coefficient identities of \S\ref{sec:sufficiency} & $n\le 200$ & $1{,}048{,}609$ & $0$\\
+Sieving identity, criterion satisfied (Thm.~\ref{thm:sufficiency}) & $n\le 130$ & $2{,}527$ & $0$\\
+Sieving identity, criterion violated (Conj.~\ref{conj:converse}) & $n\le 130$ & $2{,}497$ & $0$\\
+Uniform $(m,f)$ form (Cor.~\ref{cor:uniform}) & $n\le 115$ & $2{,}682$ & $0$\\
+Cor.~\ref{cor:qintirr}, $[r]_\zeta\notin\Q$ & $m\le 60$ & $1{,}711$ & $0$\\
+Prop.~\ref{prop:conj}, congruence necessary & $m\le 60$ & $34{,}278$ & $0$\\
+Conj.~\ref{conj:irr}, restricted irrationality & $m\le 60$ & $34{,}278$ & $0$\\
 \end{tabular}
-\caption{Exhaustive verification of Conjecture~\ref{conj:main}.}
+\caption{Exhaustive verification. The rows for Theorems~\ref{thm:collapse}
+and~\ref{thm:structure} test statements proved above and so are consistency checks on the
+implementation; the row for Conjecture~\ref{conj:converse} is genuine evidence, as is the
+last row. Every counterexample to the discarded irrationality hypothesis found in the search
+of Remark~\ref{rem:hypfalse} has $r=m-1$, and there are $67$ of them with $m\le60$.}
 \label{tab:verification}
 \end{table}
 
@@ -651,22 +1199,31 @@ Uniform $(m,f)$ form (Cor.~\ref{cor:uniform}) & $4\le n\le 115$ & $2{,}682$ & $0
 
 \paragraph{Uniformity is not necessary.} Of $280$ non-uniform multipliers with $n\le60$,
 exactly $38$ satisfy the sieving identity; all of them have orbit-size profile
-$\{1,2,m\}$. This is why Conjecture~\ref{conj:main} is stated over all divisors $e\mid m$
-rather than in the $(m,f)$ form: the single-level condition on $f=f_1$ is necessary but not
-sufficient, failing in $106$ of $603$ multipliers with $n\le46$.
+$\{1,2,m\}$. Theorem~\ref{thm:structure} explains that profile: a non-uniform multiplier
+meeting the criterion must act on $C_L$ as $-1$, and the orbits of $-1$ on a cyclic group
+have size $1$ or $2$. This is also why Definition~\ref{def:criterion} ranges over all
+divisors $e\mid m$ rather than taking the $(m,f)$ form: the single-level condition on
+$f=f_1$ is necessary but not sufficient, failing in $106$ of $603$ multipliers with
+$n\le46$.
 
 \paragraph{Three colours is strictly stronger.} For contents with $\ell\ge3$ colours the
 criterion as stated is no longer correct: among $213$ multipliers with $n\le28$ there are
 $25$ for which the two-colour identity holds but the three-colour identity fails --- the
-smallest at $n=28$. In every discrepancy the criterion over-predicts. The additional
-obstruction is not understood.
+smallest at $n=28$. In every discrepancy the criterion over-predicts. Theorem~\ref{thm:collapse}
+holds verbatim for every content, so the counting side of the identity is unaffected and the
+whole discrepancy lies on the $q$-analogue side: it is the choice of $q$-multinomial, not the
+enumeration of fixed necklaces, that fails to generalise. The additional obstruction is not
+understood.
 
 \paragraph{Open problems.}
 \begin{enumerate}
-  \item Prove Hypothesis~\ref{hyp:bad}.
-  \item Prove sufficiency in Conjecture~\ref{conj:main}, and extend
+  \item Prove Conjecture~\ref{conj:irr}, or the weaker modulus statement of
+        Remark~\ref{rem:modulusone}, which would render Theorem~\ref{thm:necessity}
+        unconditional.
+  \item Prove Conjecture~\ref{conj:converse} for non-uniform multipliers, and extend
         Theorem~\ref{thm:necessity} to $f\ge m$.
-  \item Determine the correct criterion for contents with $\ell\ge3$ colours.
+  \item Determine the correct criterion for contents with $\ell\ge3$ colours, given that by
+        Theorem~\ref{thm:collapse} the obstruction is purely $q$-analytic.
 \end{enumerate}
 
 \appendix
@@ -705,10 +1262,19 @@ The results above emerged from a broad computational search, most of whose outpu
 already known. Recording that is part of the result.
 
 \begin{itemize}
-  \item \textbf{New.} Conjecture~\ref{conj:main} and Theorem~\ref{thm:necessity}; the cases
+  \item \textbf{New.} The criterion of Definition~\ref{def:criterion}, its sufficiency
+        (Theorem~\ref{thm:sufficiency}) and Theorem~\ref{thm:necessity}; the cases
         $f\in\{3,4,6\}$ are not covered by \cite{stucky}, and lie exactly in the regime that
         paper flags as having no general conjecture.
-  \item \textbf{New.} Lemma~\ref{lem:fix}, in particular the vanishing for $c\notin K$.
+  \item \textbf{New.} Theorem~\ref{thm:collapse}, in particular the vanishing of
+        $N_\alpha(A_c)$ for $c\notin(v-1)\Zn$ and the resulting $f_1$-to-one correspondence,
+        valid for every colour content.
+  \item \textbf{New.} Theorem~\ref{thm:structure}, which recasts the criterion as a
+        statement about a single subgroup of crystallographic order.
+  \item \textbf{Corrected here.} The irrationality hypothesis assumed in the first version of
+        this work is false; see Remark~\ref{rem:hypfalse}. Proposition~\ref{prop:conj},
+        Corollary~\ref{cor:qintirr} and Proposition~\ref{prop:rlast} replace it, and
+        Remark~\ref{rem:99} records the first multiplier at which the difference is felt.
   \item \textbf{Rediscovered.} Sieving for prime $n$: derived and proved here via $q$-Lucas
         before being located as \cite[Cor.~3.3]{stucky}. The result is Stucky's.
   \item \textbf{Rediscovered.} That

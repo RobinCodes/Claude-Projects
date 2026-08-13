@@ -1,0 +1,619 @@
+\documentclass[11pt,reqno]{amsart}
+
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1.15in]{geometry}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue]{hyperref}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{observation}[theorem]{Observation}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{question}[theorem]{Question}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Uu}{\mathcal{U}}
+\newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\Ker}{\operatorname{Ker}}
+
+\begin{document}
+
+\title[Knuth products in linear numeration systems]
+      {Knuth products in linear numeration systems:\\
+       associativity is closure}
+
+\author{}
+\date{13 August 2026}
+
+\begin{abstract}
+Knuth's \emph{Fibonacci multiplication} $n\circ m=\sum_{i,j}F_{k_i+l_j}$, defined on Zeckendorf
+expansions $n=\sum_iF_{k_i}$ and $m=\sum_jF_{l_j}$, is associative. We show that this is an instance
+of a single exact identity valid in every linear numeration system, under no hypotheses beyond the
+defining recurrence being the minimal one of its root: if $\Phi$ reads greedy expansions into
+$\Z[\beta]$ and $L\colon\Z[\beta]\to\Z$ is the unique $\Z$-linear map with $L(\beta^{k})=u_{k}$, then
+the shifted Knuth product satisfies
+\[
+  n\circ_{s}m \;=\; L\bigl(\beta^{s}\,\Phi(n)\,\Phi(m)\bigr).
+\]
+Consequently $\circ_{s}$ is associative as soon as the set $S=\Phi(\N)$ of ``$\Uu$-integers''
+satisfies the closure condition $\beta^{s}S\cdot S\subseteq S$, in which case $(\N,\circ_{s})$ is
+isomorphic to a multiplicative subsemigroup of $\Z[\beta]$; and in general the failure of
+associativity is measured by an exact bilinear obstruction. Earlier work treats numeration systems
+with canonical initial values, for which the set of admissible shifts is necessarily an interval. We
+drop that restriction, and the resulting extra freedom --- a free parameter $\lambda\in\Q(\beta)$,
+since $L=\Tr(\lambda\,\cdot\,)$ --- produces behaviour with no canonical counterpart. For the Lucas
+system $1,3,4,7,11,\dots$ the product $\circ_{s}$ is associative for $s=2$, \emph{fails} for $s=3$,
+and is associative again for $4\le s\le14$: the set of admissible shifts need not be upward closed.
+It also depends on the initial values and not only on $\beta$: the system $1,2,5,12,29,\dots$
+admits $s=1$, whereas the canonical system for the same $\beta=1+\sqrt2$ does not. All assertions
+of a finite nature are certified by exact computation; the certificates are reproduced in the text.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+
+Let $F_{1}=F_{2}=1$, $F_{k+1}=F_{k}+F_{k-1}$. Every $n\in\N$ has a unique Zeckendorf expansion
+$n=\sum_{i}F_{k_{i}}$ with $k_{i}\ge2$ and $k_{i+1}\ge k_{i}+2$ \cite{Zeckendorf}. Knuth
+\cite{Knuth} defined
+\begin{equation}\label{eq:knuth}
+  n\circ m \;=\; \sum_{i,j}F_{k_{i}+l_{j}},
+  \qquad n=\sum_{i}F_{k_{i}},\quad m=\sum_{j}F_{l_{j}},
+\end{equation}
+and proved the unexpected fact that $\circ$ is associative. The operation is visibly commutative,
+and there is no reason of any obvious kind why regrouping should be harmless: the multiset
+$\{k_{i}+l_{j}\}$ is in general not a Zeckendorf expansion, so the right-hand side of
+\eqref{eq:knuth} must be renormalised before the next product is formed, and renormalisation is not
+a linear operation.
+
+Arnoux \cite{Arnoux} explained the phenomenon for the Fibonacci case by transporting the
+multiplication of $\Z[\varphi]$, $\varphi=(1+\sqrt5)/2$, through the Zeckendorf expansion. The
+construction was subsequently extended to linear recurrences with \emph{canonical} initial values
+\cite{Grabner}, where associativity is obtained once an index shift is chosen large enough, and to
+Pisot numeration systems by Messaoudi \cite{Messaoudi1,Messaoudi2}. In the canonical case the
+greedy expansions are exactly the $\beta$-admissible digit strings \cite{Bertrand}, the image of the
+expansion map is the set $\Z_{\beta}^{\ge0}$ of non-negative $\beta$-integers, and the least
+admissible shift is the constant $L^{\otimes}(\beta)$ measuring how many fractional digits a product
+of two $\beta$-integers can require \cite{BFGK,AFMP}.
+
+The purpose of this note is to isolate what is actually responsible for associativity, and to record
+what happens when the classical hypotheses are removed. Our standing assumptions are minimal:
+$\beta$ is an algebraic integer with monic minimal polynomial
+$\chi(x)=x^{d}-a_{1}x^{d-1}-\dots-a_{d}\in\Z[x]$, and $\Uu=(u_{k})_{k\ge0}$ is any strictly
+increasing sequence of positive integers with $u_{0}=1$ obeying the associated recurrence. Nothing
+is assumed about $\beta$ being Pisot or Parry, nothing about admissibility of digit strings, and ---
+crucially --- nothing about the initial values $u_{0},\dots,u_{d-1}$ beyond monotonicity.
+
+Theorem \ref{thm:transport} states the identity
+$n\circ_{s}m=L(\beta^{s}\Phi(n)\Phi(m))$ referred to in the abstract; it is an exercise, but it is
+the whole mechanism. Theorem \ref{thm:criterion} converts it into a criterion: writing
+$S=\Phi(\N)$, the closure condition $\beta^{s}S\cdot S\subseteq S$ is equivalent to the vanishing of
+the \emph{defect} $\delta_{s}(n,m)=\Phi(n\circ_{s}m)-\beta^{s}\Phi(n)\Phi(m)$, and implies that
+$n\mapsto\beta^{s}\Phi(n)$ is an isomorphism of $(\N,\circ_{s})$ onto a multiplicative subsemigroup
+of $\Z[\beta]$. Part (iv) of that theorem is an exact identity: associativity holds if and only if
+\[
+  L\bigl(\beta^{s}\delta_{s}(n,m)\Phi(p)\bigr)=L\bigl(\beta^{s}\Phi(n)\delta_{s}(m,p)\bigr)
+  \qquad\text{for all }n,m,p .
+\]
+
+Section \ref{sec:phenomena} contains the point of the exercise. Lemma \ref{lem:multiples} shows that
+the set of shifts satisfying the closure condition is closed under multiplication by positive
+integers, and Remark \ref{rem:canonical} shows that in the classical (canonical) situation one has
+$\beta S\subseteq S$, so that the admissible shifts form an interval $[s_{0},\infty)$ and no finer
+structure can appear. Without canonicity this collapses:
+
+\begin{itemize}
+\item For the Lucas system $u=(1,3,4,7,11,18,\dots)$ the product $\circ_{2}$ is associative,
+      $\circ_{3}$ is \emph{not}, and $\circ_{s}$ is associative again for all $4\le s\le14$
+      (Proposition \ref{prop:lucas} gives the certificate
+      $(1\circ_{3}2)\circ_{3}6=268\ne278=1\circ_{3}(2\circ_{3}6)$).
+\item For $u=(1,4,5,9,14,23,\dots)$ --- again $\beta=\varphi$ --- the admissible shifts observed are
+      $\{4\}\cup[6,14]$, with $5$ excluded.
+\item The set of admissible shifts is not a function of $\beta$: three systems with $\beta=\varphi$
+      give $[2,\infty)$, $\{2\}\cup[4,\infty)$ and $\{4\}\cup[6,\infty)$ respectively (as far as
+      computed), and for $\beta=1+\sqrt2$ the non-canonical system $1,2,5,12,29,\dots$ admits the
+      shift $s=1$ while the canonical system $1,3,7,17,41,\dots$ does not.
+\end{itemize}
+
+Finally, in every system and every shift examined, associativity and closure were found to be
+equivalent. We have not been able to prove the missing implication, and state it as Conjecture
+\ref{conj:noaccident}: an associative Knuth product is always a transported ring product.
+
+All finite assertions in this paper --- in particular every negative result --- are exact integer
+computations, and are reproduced by the script \texttt{verify.py} accompanying this note; see
+Appendix \ref{sec:verification}.
+
+\section{Setting}
+
+\begin{definition}\label{def:system}
+A \emph{linear numeration system} is a pair $(\beta,\Uu)$ subject to:
+\begin{enumerate}
+\item[(H1)] $\beta$ is an algebraic integer whose minimal polynomial over $\Q$ is
+      $\chi(x)=x^{d}-a_{1}x^{d-1}-\dots-a_{d}$ with $a_{i}\in\Z$;
+\item[(H2)] $\Uu=(u_{k})_{k\ge0}$ is a sequence of integers with $u_{0}=1$,
+      $u_{0}<u_{1}<u_{2}<\dots$, and
+      $u_{k}=a_{1}u_{k-1}+a_{2}u_{k-2}+\dots+a_{d}u_{k-d}$ for all $k\ge d$.
+\end{enumerate}
+\end{definition}
+
+The initial values $u_{0}=1,u_{1},\dots,u_{d-1}$ are otherwise unconstrained. Taking
+$u_{k}=a_{1}u_{k-1}+\dots+a_{k}u_{0}+1$ for $1\le k<d$ gives the \emph{canonical} system associated
+with the digit string $a_{1}a_{2}\cdots a_{d}$; this is the case treated in
+\cite{Grabner,Messaoudi1,Messaoudi2,AFMP}, and it is not the case of interest here.
+
+\begin{definition}\label{def:greedy}
+The \emph{greedy expansion} $K(n)$ of $n\in\N$ is the finite multiset of non-negative integers
+defined by $K(0)=\varnothing$ and, for $n\ge1$,
+\[
+  K(n)=\{\kappa(n)\}\uplus K\bigl(n-u_{\kappa(n)}\bigr),
+  \qquad \kappa(n)=\max\{k:u_{k}\le n\}.
+\]
+\end{definition}
+
+Since $u_{0}=1$ the set $\{k:u_{k}\le n\}$ is non-empty, and it is finite because $(u_{k})$ is
+strictly increasing; as $n-u_{\kappa(n)}<n$ the recursion terminates. Thus $K(n)$ is well defined,
+finite, and $n=\sum_{k\in K(n)}u_{k}$, the sum being taken with multiplicity. Multiplicities do
+occur: in the Lucas system $1,3,4,7,\dots$ one has $K(2)=\{0,0\}$.
+
+\begin{definition}\label{def:product}
+For $s\ge0$ the \emph{Knuth product of shift $s$} is
+\[
+  n\circ_{s}m \;=\; \sum_{k\in K(n)}\ \sum_{l\in K(m)}u_{k+l+s}
+  \qquad (n,m\in\N),
+\]
+sums taken with multiplicity. We write $\Phi(n)=\sum_{k\in K(n)}\beta^{k}\in\Z[\beta]$ and
+$S=\Phi(\N)$.
+\end{definition}
+
+The operation $\circ_{s}$ is commutative, and $n\circ_{s}0=0$.
+
+\begin{example}\label{ex:knuth}
+For $u_{k}=F_{k+2}$, hypothesis (H2) holds with $\chi(x)=x^{2}-x-1$, $\beta=\varphi$, and $K(n)$ is
+the Zeckendorf expansion of $n$ with indices shifted down by $2$. If $n=\sum_{i}F_{K_{i}}$ and
+$m=\sum_{j}F_{L_{j}}$ in Knuth's indexing, then $K_{i}=k_{i}+2$ and $L_{j}=l_{j}+2$, so
+$F_{K_{i}+L_{j}}=F_{k_{i}+l_{j}+4}=u_{k_{i}+l_{j}+2}$. Hence Knuth's operation \eqref{eq:knuth} is
+exactly $\circ_{2}$ for this system.
+\end{example}
+
+\begin{example}\label{ex:base}
+For $u_{k}=b^{k}$ ($b\ge2$) we have $d=1$, $\chi(x)=x-b$, $\beta=b$, and $K(n)$ lists the positions
+of the base-$b$ digits of $n$ with multiplicity. Then $n\circ_{s}m=b^{s}nm$.
+\end{example}
+
+\section{The transport identity}
+
+\begin{theorem}\label{thm:transport}
+Let $(\beta,\Uu)$ be a linear numeration system. There is a unique $\Z$-linear map
+$L\colon\Z[\beta]\to\Z$ with $L(\beta^{k})=u_{k}$ for all $k\ge0$, and it satisfies
+\begin{enumerate}
+\item[(i)] $L(\Phi(n))=n$ for every $n\in\N$;
+\item[(ii)] $n\circ_{s}m=L\bigl(\beta^{s}\Phi(n)\Phi(m)\bigr)$ for all $n,m\in\N$ and all $s\ge0$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Since $\chi$ is monic, division with remainder by $\chi$ is available in $\Z[x]$; and since $\chi$ is
+the minimal polynomial of $\beta$, a polynomial $P\in\Z[x]$ satisfies $P(\beta)=0$ if and only if
+$\chi\mid P$ in $\Q[x]$, hence (writing $P=Q\chi+R$ in $\Z[x]$ with $\deg R<d$ and noting $R(\beta)=0$
+forces $R=0$) if and only if $\chi\mid P$ in $\Z[x]$. Therefore the evaluation map induces an
+isomorphism $\Z[x]/(\chi)\xrightarrow{\ \sim\ }\Z[\beta]$, and $\Z[\beta]$ is a free $\Z$-module with
+basis $1,\beta,\dots,\beta^{d-1}$.
+
+Define $L$ on this basis by $L(\beta^{i})=u_{i}$ for $0\le i<d$ and extend $\Z$-linearly; any map as
+in the statement must agree with this one, whence uniqueness. We check $L(\beta^{k})=u_{k}$ for
+$k\ge d$ by strong induction. Multiplying $\chi(\beta)=0$ by $\beta^{k-d}$ gives
+$\beta^{k}=a_{1}\beta^{k-1}+\dots+a_{d}\beta^{k-d}$, and all exponents on the right lie in
+$\{k-d,\dots,k-1\}\subseteq\Z_{\ge0}$, so by linearity and the inductive hypothesis
+\[
+  L(\beta^{k})=a_{1}u_{k-1}+\dots+a_{d}u_{k-d}=u_{k},
+\]
+the last equality by (H2).
+
+(i) is immediate: $L(\Phi(n))=\sum_{k\in K(n)}L(\beta^{k})=\sum_{k\in K(n)}u_{k}=n$. For (ii),
+\[
+  \beta^{s}\Phi(n)\Phi(m)=\sum_{k\in K(n)}\sum_{l\in K(m)}\beta^{k+l+s},
+\]
+and applying $L$ termwise gives $\sum_{k,l}u_{k+l+s}=n\circ_{s}m$.
+\end{proof}
+
+\begin{corollary}\label{cor:bijection}
+$\Phi\colon\N\to S$ is a bijection, with inverse $L|_{S}$. Moreover $\Phi(0)=0$ and $\Phi(1)=1$.
+\end{corollary}
+
+\begin{proof}
+Surjectivity onto $S=\Phi(\N)$ holds by definition, and injectivity follows from
+Theorem \ref{thm:transport}(i), which also identifies the inverse. As $u_{1}>u_{0}=1$ we have
+$\kappa(1)=0$, so $K(1)=\{0\}$ and $\Phi(1)=\beta^{0}=1$.
+\end{proof}
+
+We record two structural remarks; neither is used later, but both clarify what the data of a
+numeration system amounts to.
+
+\begin{proposition}\label{prop:trace}
+There is a unique $\lambda\in\Q(\beta)$ with
+$L(z)=\Tr_{\Q(\beta)/\Q}(\lambda z)$ for all $z\in\Z[\beta]$. For $u_{k}=F_{k+2}$ one has
+$\lambda=\varphi^{2}/\sqrt5$, and for $u_{k}=L_{k+1}$ (the Lucas system $1,3,4,7,\dots$) one has
+$\lambda=\varphi$.
+\end{proposition}
+
+\begin{proof}
+$L$ extends uniquely to a $\Q$-linear functional on $\Q(\beta)=\Z[\beta]\otimes_{\Z}\Q$. As
+$\Q(\beta)/\Q$ is separable, the trace pairing $(x,y)\mapsto\Tr(xy)$ is non-degenerate, so
+$\lambda\mapsto\Tr(\lambda\,\cdot\,)$ is an isomorphism from $\Q(\beta)$ onto its $\Q$-dual; take
+$\lambda$ to be the preimage of the extension of $L$. For the two examples, with
+$\psi=(1-\sqrt5)/2$ one has $\Tr(\varphi\cdot\varphi^{k})=\varphi^{k+1}+\psi^{k+1}=L_{k+1}$ and
+$\Tr\bigl((\varphi^{2}/\sqrt5)\varphi^{k}\bigr)=(\varphi^{k+2}-\psi^{k+2})/\sqrt5=F_{k+2}$.
+\end{proof}
+
+Thus, for fixed $\beta$, choosing the initial values of $\Uu$ is choosing $\lambda$, and the
+classical theory is the study of one distinguished $\lambda$.
+
+\begin{remark}\label{rem:galois}
+The construction is equivariant for the Galois action. If $\sigma$ is an embedding of $\Q(\beta)$
+into $\overline{\Q}$ and $\beta'=\sigma(\beta)$, then $(\beta',\Uu)$ is again a linear numeration
+system, $\Phi_{\beta'}=\sigma\circ\Phi_{\beta}$, $L_{\beta'}\circ\sigma=L_{\beta}$, and
+$\sigma(S_{\beta})=S_{\beta'}$. In particular the closure condition of Theorem \ref{thm:criterion}
+holds for $\beta$ if and only if it holds for any conjugate, so the choice of root of $\chi$ is
+immaterial. Note also that $\circ_{s}$ itself never depended on that choice.
+\end{remark}
+
+\section{Associativity is closure}
+
+\begin{definition}\label{def:defect}
+For $s\ge0$ the \emph{defect} of $\circ_{s}$ is
+\[
+  \delta_{s}(n,m)\;=\;\Phi(n\circ_{s}m)-\beta^{s}\Phi(n)\Phi(m)\;\in\;\Z[\beta].
+\]
+\end{definition}
+
+\begin{theorem}\label{thm:criterion}
+Let $(\beta,\Uu)$ be a linear numeration system and $s\ge0$. Then:
+\begin{enumerate}
+\item[(i)] $\delta_{s}(n,m)\in\Ker L$ for all $n,m\in\N$;
+\item[(ii)] $\beta^{s}S\cdot S\subseteq S$ if and only if $\delta_{s}\equiv0$ on $\N\times\N$;
+\item[(iii)] if $\beta^{s}S\cdot S\subseteq S$, then $\Psi:=\beta^{s}\Phi$ is injective and satisfies
+      $\Psi(n\circ_{s}m)=\Psi(n)\Psi(m)$; consequently $(\N,\circ_{s})$ is isomorphic, as a
+      commutative semigroup, to $\bigl(\Psi(\N),\times\bigr)\subseteq(\Z[\beta],\times)$, and
+      $\circ_{s}$ is associative;
+\item[(iv)] $\circ_{s}$ is associative if and only if
+      \begin{equation}\label{eq:obstruction}
+        L\bigl(\beta^{s}\,\delta_{s}(n,m)\,\Phi(p)\bigr)
+        =L\bigl(\beta^{s}\,\Phi(n)\,\delta_{s}(m,p)\bigr)
+        \qquad\text{for all }n,m,p\in\N .
+      \end{equation}
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) By Theorem \ref{thm:transport}(i), $L(\Phi(n\circ_{s}m))=n\circ_{s}m$, and by
+Theorem \ref{thm:transport}(ii), $L(\beta^{s}\Phi(n)\Phi(m))=n\circ_{s}m$ as well; subtract.
+
+(ii) Assume $\beta^{s}S\cdot S\subseteq S$ and put $z=\beta^{s}\Phi(n)\Phi(m)$. Then $z\in S$, say
+$z=\Phi(N)$ with $N\in\N$, and Corollary \ref{cor:bijection} gives $N=L(z)$, which equals
+$n\circ_{s}m$ by Theorem \ref{thm:transport}(ii). Hence $\Phi(n\circ_{s}m)=\Phi(N)=z$, i.e.
+$\delta_{s}(n,m)=0$. Conversely, if $\delta_{s}\equiv0$ then
+$\beta^{s}\Phi(n)\Phi(m)=\Phi(n\circ_{s}m)\in S$ for all $n,m$, which is the stated inclusion.
+
+(iii) By (ii), $\Phi(n\circ_{s}m)=\beta^{s}\Phi(n)\Phi(m)$, so
+\[
+  \Psi(n\circ_{s}m)=\beta^{s}\Phi(n\circ_{s}m)=\beta^{s}\cdot\beta^{s}\Phi(n)\Phi(m)=\Psi(n)\Psi(m).
+\]
+$\Phi$ is injective by Corollary \ref{cor:bijection} and $\beta\ne0$ is a non-zero-divisor of the
+integral domain $\Z[\beta]$, so $\Psi$ is injective. Therefore
+\[
+  \Psi\bigl((n\circ_{s}m)\circ_{s}p\bigr)=\Psi(n)\Psi(m)\Psi(p)
+  =\Psi\bigl(n\circ_{s}(m\circ_{s}p)\bigr),
+\]
+and injectivity of $\Psi$ yields associativity. That $\Psi$ is a semigroup isomorphism onto its
+image is the displayed multiplicativity together with injectivity.
+
+(iv) By Theorem \ref{thm:transport}(ii) applied to the pair $(n\circ_{s}m,\,p)$ and
+Definition \ref{def:defect},
+\begin{align*}
+  (n\circ_{s}m)\circ_{s}p
+  &=L\bigl(\beta^{s}\Phi(n\circ_{s}m)\Phi(p)\bigr)\\
+  &=L\bigl(\beta^{s}\bigl[\beta^{s}\Phi(n)\Phi(m)+\delta_{s}(n,m)\bigr]\Phi(p)\bigr)\\
+  &=L\bigl(\beta^{2s}\Phi(n)\Phi(m)\Phi(p)\bigr)+L\bigl(\beta^{s}\delta_{s}(n,m)\Phi(p)\bigr),
+\end{align*}
+and symmetrically
+\[
+  n\circ_{s}(m\circ_{s}p)
+  =L\bigl(\beta^{2s}\Phi(n)\Phi(m)\Phi(p)\bigr)+L\bigl(\beta^{s}\Phi(n)\delta_{s}(m,p)\bigr).
+\]
+Subtracting gives the claim.
+\end{proof}
+
+\begin{definition}\label{def:sets}
+Put
+\[
+  C(\Uu)=\{s\ge0:\beta^{s}S\cdot S\subseteq S\},\qquad
+  G(\Uu)=\{s\ge0:\circ_{s}\text{ is associative}\},
+\]
+so that $C(\Uu)\subseteq G(\Uu)$ by Theorem \ref{thm:criterion}(iii).
+\end{definition}
+
+\begin{lemma}\label{lem:multiples}
+If $s\in C(\Uu)$ then $\beta^{s}S\subseteq S$, and $ks\in C(\Uu)$ for every integer $k\ge1$. Thus
+$C(\Uu)$ is closed under multiplication by positive integers.
+\end{lemma}
+
+\begin{proof}
+By Corollary \ref{cor:bijection}, $1=\Phi(1)\in S$, so
+$\beta^{s}S=\beta^{s}S\cdot\{1\}\subseteq\beta^{s}S\cdot S\subseteq S$. Iterating,
+$\beta^{js}S\subseteq S$ for all $j\ge0$, whence
+\[
+  \beta^{(j+1)s}S\cdot S=\beta^{js}\bigl(\beta^{s}S\cdot S\bigr)\subseteq\beta^{js}S\subseteq S. \qedhere
+\]
+\end{proof}
+
+\begin{remark}\label{rem:canonical}
+Suppose $\Uu$ is the canonical system of a simple Parry number $\beta$ \cite{Parry}. Then greedy
+$\Uu$-expansions coincide with the $\beta$-admissible digit strings \cite{Bertrand}, so that
+$S=\Z_{\beta}^{\ge0}$; multiplying an admissible string by $\beta$ appends a zero digit at the
+bottom and preserves admissibility, whence $\beta S\subseteq S$. Combining this with
+Lemma \ref{lem:multiples}, $C(\Uu)$ is upward closed, i.e.\ an interval $[s_{0},\infty)$, and
+$s_{0}=L^{\otimes}(\beta)$ in the notation of \cite{BFGK,AFMP}. Consequently none of the phenomena
+of Section \ref{sec:phenomena} can be seen in the canonical setting: there, ``$s$ large enough'' is
+the whole story, which is the form the result takes in \cite{Grabner,Messaoudi1,Messaoudi2}.
+\end{remark}
+
+\begin{example}\label{ex:knuththeorem}
+Knuth's theorem is the assertion $2\in C(\Uu)$ for the Zeckendorf system, i.e.
+$\varphi^{2}\,\Z_{\varphi}^{\ge0}\!\cdot\Z_{\varphi}^{\ge0}\subseteq\Z_{\varphi}^{\ge0}$: a product
+of two non-negative golden-mean integers needs at most two golden-mean fractional digits. By
+Remark \ref{rem:canonical}, $C=[2,\infty)$ for that system, and Theorem \ref{thm:criterion}(iii)
+identifies $(\N,\circ_{2})$ with the semigroup
+$\varphi^{2}\Z_{\varphi}^{\ge0}$ under multiplication.
+\end{example}
+
+\section{Phenomena outside the canonical case}\label{sec:phenomena}
+
+For $N\ge1$ let $G_{N}(\Uu)$ denote the set of $s$ for which associativity holds for all
+$n,m,p\le N$, and $C_{N}(\Uu)$ the set of $s$ for which $\beta^{s}\Phi(n)\Phi(m)\in S$ for all
+$n,m\le N$. Thus $G(\Uu)\subseteq G_{N}(\Uu)$ and $C(\Uu)\subseteq C_{N}(\Uu)$, and an exhibited
+$s\notin G_{N}(\Uu)$ \emph{proves} $s\notin G(\Uu)$.
+
+Table \ref{tab:main} lists $C_{24}\cap[0,8]$ and $G_{24}\cap[0,8]$ for thirteen systems; the two
+coincided in every instance. Table \ref{tab:focus} extends the range for five systems.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{llllc}
+\toprule
+system & $u_{0},u_{1},u_{2},u_{3},\dots$ & $\chi$ & $\beta$ & $C_{24}=G_{24}$ in $[0,8]$\\
+\midrule
+base $2$        & $1,2,4,8,\dots$      & $x-2$        & $2$      & $0,1,2,\dots,8$\\
+base $3$        & $1,3,9,27,\dots$     & $x-3$        & $3$      & $0,1,2,\dots,8$\\
+Zeckendorf      & $1,2,3,5,8,\dots$    & $x^{2}-x-1$  & $1.6180$ & $2,3,\dots,8$\\
+Lucas           & $1,3,4,7,11,\dots$   & $x^{2}-x-1$  & $1.6180$ & $2,\ \ 4,5,\dots,8$\\
+shifted Fib.    & $1,4,5,9,14,\dots$   & $x^{2}-x-1$  & $1.6180$ & $4,\ \ 6,7,8$\\
+Pell canonical  & $1,3,7,17,41,\dots$  & $x^{2}-2x-1$ & $2.4142$ & $2,3,\dots,8$\\
+Pell natural    & $1,2,5,12,29,\dots$  & $x^{2}-2x-1$ & $2.4142$ & $1,2,\dots,8$\\
+$x^{2}=3x+1$    & $1,4,13,43,\dots$    & $x^{2}-3x-1$ & $3.3028$ & $2,3,\dots,8$\\
+$x^{2}=2x+2$    & $1,3,8,22,\dots$     & $x^{2}-2x-2$ & $2.7321$ & $4,5,\dots,8$\\
+Tribonacci      & $1,2,4,7,13,\dots$   & $x^{3}-x^{2}-x-1$ & $1.8393$ & $3,4,\dots,8$\\
+$x^{3}=x^{2}+1$ & $1,2,3,4,6,9,\dots$  & $x^{3}-x^{2}-1$   & $1.4656$ & $7,8$\\
+$x^{2}=x+3$     & $1,2,5,11,\dots$     & $x^{2}-x-3$  & $2.3028$ & $\varnothing$\\
+$x^{4}=x^{3}+1$ & $1,2,3,4,5,7,\dots$  & $x^{4}-x^{3}-1$ & $1.3803$ & $\varnothing$\\
+\bottomrule
+\end{tabular}
+\medskip
+\caption{Closure and associativity shifts, computed exactly for $n,m,p\le24$ and $s\le8$. All
+$\beta$ listed are Pisot numbers except $\beta=2.3028\dots$, whose conjugate is $-1.3028\dots$;
+$\beta=1.3803\dots$ is the second smallest Pisot number.}
+\label{tab:main}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+system & $u_{0},u_{1},u_{2},\dots$ & $G_{40}\cap[0,14]$\\
+\midrule
+Zeckendorf     & $1,2,3,5,8,\dots$   & $2,3,4,5,6,7,8,9,10,11,12,13,14$\\
+Lucas          & $1,3,4,7,11,\dots$  & $2,\ \ \ \,4,5,6,7,8,9,10,11,12,13,14$\\
+shifted Fib.   & $1,4,5,9,14,\dots$  & $4,\ \ \ \,6,7,8,9,10,11,12,13,14$\\
+Pell canonical & $1,3,7,17,41,\dots$ & $2,3,4,5,6,7,8,9,10,11,12,13,14$\\
+Pell natural   & $1,2,5,12,29,\dots$ & $1,2,3,4,5,6,7,8,9,10,11,12,13,14$\\
+\bottomrule
+\end{tabular}
+\medskip
+\caption{Associativity shifts over a longer range, computed exactly for $n,m,p\le40$.}
+\label{tab:focus}
+\end{table}
+
+\begin{proposition}\label{prop:lucas}
+For the Lucas system $\Uu=(1,3,4,7,11,18,29,47,76,123,199,\dots)$, that is $u_{k}=L_{k+1}$, one has
+$3\notin G(\Uu)$. Explicitly,
+\[
+  (1\circ_{3}2)\circ_{3}6=268\ne278=1\circ_{3}(2\circ_{3}6).
+\]
+\end{proposition}
+
+\begin{proof}
+The greedy expansions are $K(1)=\{0\}$, $K(2)=\{0,0\}$ and $K(6)=\{2,0,0\}$, since $6=4+1+1$.
+Hence $1\circ_{3}2=u_{3}+u_{3}=14$, and $K(14)=\{4,1\}$ because $14=11+3$, so
+\[
+  (1\circ_{3}2)\circ_{3}6=\bigl(u_{9}+u_{7}+u_{7}\bigr)+\bigl(u_{6}+u_{4}+u_{4}\bigr)
+  =(123+47+47)+(29+11+11)=268 .
+\]
+On the other side $2\circ_{3}6=2\bigl(u_{5}+u_{3}+u_{3}\bigr)=2(18+7+7)=64$, and
+$K(64)=\{7,4,2,0,0\}$ because $64=47+11+4+1+1$, so
+\[
+  1\circ_{3}(2\circ_{3}6)=u_{10}+u_{7}+u_{5}+u_{3}+u_{3}=199+47+18+7+7=278 . \qedhere
+\]
+\end{proof}
+
+\begin{proposition}\label{prop:others}
+Let $\Uu$ be the system with $u_{0}=1$, $u_{1}=4$ and $u_{k}=u_{k-1}+u_{k-2}$, namely
+\[
+  1,\,4,\,5,\,9,\,14,\,23,\,37,\,60,\,97,\,157,\,254,\,411,\,665,\,1076,\,1741,\,2817,\,4558,\,7375,\dots
+\]
+Then $5\notin G(\Uu)$, certified by
+$(1\circ_{5}8)\circ_{5}8=8017\ne8072=1\circ_{5}(8\circ_{5}8)$. For the Zeckendorf system
+$1\notin G(\Uu)$, certified by $(1\circ_{1}4)\circ_{1}4=40\ne41=1\circ_{1}(4\circ_{1}4)$.
+\end{proposition}
+
+\begin{proof}
+Both are finite computations of the same shape as Proposition \ref{prop:lucas}; they are carried out
+in \S3 and \S4 of \texttt{verify.py}. For the first: $K(8)=\{2,0,0,0\}$, $1\circ_{5}8=u_{7}+3u_{5}=129$,
+$K(129)=\{8,5,3\}$, and $(1\circ_{5}8)\circ_{5}8=6045+1427+545=8017$; while
+$8\circ_{5}8=u_{9}+6u_{7}+9u_{5}=724$, $K(724)=\{12,6,4,2,0,0,0\}$, and
+$1\circ_{5}724=u_{17}+u_{11}+u_{9}+u_{7}+3u_{5}=7375+411+157+60+69=8072$.
+\end{proof}
+
+\begin{observation}[$G$ need not be upward closed]\label{obs:notupset}
+By Table \ref{tab:focus} and Proposition \ref{prop:lucas}, the Lucas system satisfies
+$2\in G$, $3\notin G$, $\{4,\dots,14\}\subseteq G_{40}$; the shifted Fibonacci system satisfies
+$4\in G_{40}$, $5\notin G$, $\{6,\dots,14\}\subseteq G_{40}$.
+\end{observation}
+
+Lemma \ref{lem:multiples} explains part of this: once $2\in C$, all even shifts lie in $C$. What
+fails is the hypothesis of Remark \ref{rem:canonical}. Indeed, for the Lucas system
+$2=\Phi(2)\in S$ while $2\varphi\notin S$: here $L(2\varphi)=2u_{1}=6$ and
+$\Phi(6)=\varphi^{2}+2\ne2\varphi$, since $K(6)=\{2,0,0\}$. Hence $\varphi S\not\subseteq S$ and
+there is no mechanism forcing $3\in C$ --- and in fact $3\notin G$. The odd shifts $5,7,9,\dots$
+nevertheless appear to be admissible, and we do not know why; see Question \ref{q:lucasodd}.
+
+\begin{observation}[dependence on initial values]\label{obs:initial}
+The three systems with $\beta=\varphi$ in Table \ref{tab:main} have distinct admissible-shift sets.
+Hence $G(\Uu)$ is an invariant of the pair $(\beta,\lambda)$ of Proposition \ref{prop:trace}, not of
+$\beta$ alone.
+\end{observation}
+
+\begin{observation}[non-canonical can beat canonical]\label{obs:beat}
+For $\beta=1+\sqrt2$ the system $1,2,5,12,29,\dots$ admits $s=1$, whereas the canonical system
+$1,3,7,17,41,\dots$ has least admissible shift $2$. Equivalently: a suitable choice of $\lambda$
+produces a set $S$ of $\Uu$-integers closed under multiplication by a smaller power of $\beta$ than
+$\Z_{\beta}^{\ge0}$ is.
+\end{observation}
+
+\begin{observation}[two ways to fail for all $s$]\label{obs:fail}
+For $\beta=2.3028\dots$, the root of $x^{2}=x+3$, no shift $s\le20$ is admissible (checked for
+$n,m,p\le12$); $\beta$ is not Pisot, its conjugate being $-1.3028\dots$. Being Pisot is however not
+sufficient: for $\beta=1.3803\dots$, the root of $x^{4}=x^{3}+1$ and the second smallest Pisot
+number, no shift $s\le20$ is admissible either. This is consistent with the finiteness property
+(F) of \cite{FrougnySolomyak}: the digit string of $\beta$ here is $1001$, which violates the
+descending-digit criterion, whereas all systems in Table \ref{tab:main} with $C\ne\varnothing$ have
+$\beta$ Pisot.
+\end{observation}
+
+\begin{observation}[no accidental associativity]\label{obs:noaccident}
+In all thirteen systems of Table \ref{tab:main} and all shifts $s\le8$, one has
+$C_{24}(\Uu)=G_{24}(\Uu)$.
+\end{observation}
+
+\section{Questions}
+
+Theorem \ref{thm:criterion}(iii) proves $C(\Uu)\subseteq G(\Uu)$. Observation
+\ref{obs:noaccident} suggests that nothing more is possible.
+
+\begin{conjecture}\label{conj:noaccident}
+$C(\Uu)=G(\Uu)$ for every linear numeration system: every associative Knuth product is a transported
+ring product. Equivalently, by Theorem \ref{thm:criterion}(iv), the bilinear obstruction
+\eqref{eq:obstruction} cannot vanish identically unless the defect $\delta_{s}$ does.
+\end{conjecture}
+
+\begin{question}\label{q:lucasodd}
+Is $G(\Uu)=\{2\}\cup[4,\infty)$ for the Lucas system, and $\{4\}\cup[6,\infty)$ for
+$1,4,5,9,14,\dots$? More pointedly: $3$ fails and $5$ apparently does not, although neither is a
+multiple of the least admissible shift. What distinguishes them?
+\end{question}
+
+\begin{question}\label{q:zero}
+For which $(\beta,\Uu)$ is $0\in C(\Uu)$, i.e.\ for which numeration systems is the set $S$ of
+$\Uu$-integers closed under multiplication? Base $b$ (Example \ref{ex:base}) is such a system. Is
+$\beta\in\Z$ necessary?
+\end{question}
+
+\begin{question}\label{q:invariant}
+For fixed $\beta$, put $s_{\min}(\beta)=\min_{\Uu}\min C(\Uu)$, the minimum over all admissible
+initial values. Observation \ref{obs:beat} shows $s_{\min}(1+\sqrt2)\le1<L^{\otimes}(1+\sqrt2)$.
+Compute $s_{\min}$; it is an invariant of $\beta$ refining $L^{\otimes}$.
+\end{question}
+
+\appendix
+
+\section{Verification}\label{sec:verification}
+
+The accompanying script \texttt{verify.py} (Python 3, standard library only) reproduces every finite
+assertion above. All arithmetic is exact: integers are Python integers, and elements of
+$\Z[\beta]\cong\Z[x]/(\chi)$ are represented by their coordinate vectors in the basis
+$1,\beta,\dots,\beta^{d-1}$, with multiplication performed by polynomial multiplication followed by
+reduction using $\chi$. No floating-point arithmetic occurs anywhere; the decimal values of $\beta$
+quoted in Table \ref{tab:main} are for orientation only and play no role in any check. Membership
+$z\in S$ is decided exactly, by testing whether $\Phi(L(z))=z$, which is legitimate by
+Corollary \ref{cor:bijection}.
+
+The script performs, in order: verification that each $\chi$ used is irreducible (by exhaustion over
+rational roots, and for $d=4$ over factorisations into monic integer quadratics); verification of
+Theorem \ref{thm:transport}(i) and (ii) for $n,m\le30$ and $s\le6$ in all thirteen systems;
+verification that $C_{24}$ and $G_{24}$ agree, and that closure implies associativity, for $s\le8$
+(Table \ref{tab:main}); the extended computation of Table \ref{tab:focus}; the minimal
+counterexamples of Propositions \ref{prop:lucas} and \ref{prop:others}, obtained by exhaustive
+search in lexicographic order over $n,m,p<60$; Knuth's theorem as a control, for $n,m,p\le45$; the
+long-range scans of Observation \ref{obs:fail} for $s\le20$; Lemma \ref{lem:multiples}; the
+assertions about $2\varphi\notin S$ used after Observation \ref{obs:notupset}; and
+Proposition \ref{prop:trace} for the two systems named there. The script terminates with
+\texttt{ALL CHECKS PASSED} and reports no failures.
+
+\begin{thebibliography}{99}
+
+\bibitem{AFMP} P.~Ambro\v{z}, C.~Frougny, Z.~Mas\'akov\'a and E.~Pelantov\'a,
+  \emph{Arithmetics on number systems with irrational bases},
+  Bull. Belg. Math. Soc. Simon Stevin \textbf{10} (2003), no.~5.
+
+\bibitem{Arnoux} P.~Arnoux, \emph{Some remarks about Fibonacci multiplication},
+  Appl. Math. Lett. \textbf{2} (1989), 319--320.
+
+\bibitem{Bertrand} A.~Bertrand, \emph{D\'eveloppements en base de Pisot et r\'epartition modulo~$1$},
+  C. R. Acad. Sci. Paris S\'er. A--B \textbf{285} (1977), A419--A421.
+
+\bibitem{BFGK} \v{C}.~Burd\'ik, C.~Frougny, J.-P.~Gazeau and R.~Krejcar,
+  \emph{Beta-integers as natural counting systems for quasicrystals},
+  J. Phys. A \textbf{31} (1998), 6449--6472.
+
+\bibitem{FrougnySolomyak} C.~Frougny and B.~Solomyak, \emph{Finite beta-expansions},
+  Ergodic Theory Dynam. Systems \textbf{12} (1992), 713--723.
+
+\bibitem{Grabner} P.~J.~Grabner et al., \emph{Associativity of recurrence multiplication},
+  Appl. Math. Lett. \textbf{7} (1994), 85--90.\footnote{The bibliographic data for this item are
+  taken from secondary indexing; we were unable to consult the original, and the author list may be
+  incomplete. Its content, as indexed, is the extension of \eqref{eq:knuth} to recurrences
+  $G_{k+d}=a_{1}G_{k+d-1}+\dots+a_{d}G_{k}$ with canonical initial values, with associativity proved
+  once the index shift is chosen large enough --- that is, the canonical case of
+  Theorem \ref{thm:criterion}(iii) together with the fact, our Remark \ref{rem:canonical}, that
+  there the admissible shifts form an interval.}
+
+\bibitem{Knuth} D.~E.~Knuth, \emph{Fibonacci multiplication},
+  Appl. Math. Lett. \textbf{1} (1988), 57--60.
+
+\bibitem{Messaoudi1} A.~Messaoudi, \emph{G\'en\'eralisation de la multiplication de Fibonacci},
+  Math. Slovaca \textbf{50} (2000), no.~2, 135--148.
+
+\bibitem{Messaoudi2} A.~Messaoudi, \emph{Tribonacci multiplication},
+  Appl. Math. Lett. \textbf{15} (2002), 981--985.
+
+\bibitem{Parry} W.~Parry, \emph{On the $\beta$-expansions of real numbers},
+  Acta Math. Acad. Sci. Hungar. \textbf{11} (1960), 401--416.
+
+\bibitem{Zeckendorf} E.~Zeckendorf, \emph{Repr\'esentation des nombres naturels par une somme de
+  nombres de Fibonacci ou de nombres de Lucas},
+  Bull. Soc. Roy. Sci. Li\`ege \textbf{41} (1972), 179--182.
+
+\end{thebibliography}
+
+\end{document}

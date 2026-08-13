@@ -1,0 +1,455 @@
+<title>The Crystallographic Criterion</title>
+<style>
+  :root{
+    --ground:#F5F7F9; --surface:#FFFFFF; --sunk:#EDF1F5;
+    --ink:#111820; --body:#26313B; --muted:#5A6874; --faint:#8494A1;
+    --rule:#D5DDE4; --hair:#E4EAEF;
+    --azurite:#1A6598; --azurite-soft:#E2EDF5; --azurite-ink:#134A72;
+    --oxide:#A24D2B; --oxide-soft:#F6E9E2;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Charter","Bitstream Charter","DejaVu Serif","Liberation Serif",Georgia,serif;
+    --mono:"JetBrains Mono","SF Mono",Menlo,Consolas,"DejaVu Sans Mono","Liberation Mono",monospace;
+    --sans:ui-sans-serif,system-ui,"Segoe UI",Roboto,"DejaVu Sans",sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ground:#0D1216; --surface:#141B21; --sunk:#101820;
+      --ink:#E4EAF0; --body:#C6D1DB; --muted:#8F9DAA; --faint:#6E7D8A;
+      --rule:#232E37; --hair:#1C252D;
+      --azurite:#5FA6DA; --azurite-soft:#152836; --azurite-ink:#8CC2E8;
+      --oxide:#DC8A5E; --oxide-soft:#2A1D16;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0D1216; --surface:#141B21; --sunk:#101820;
+    --ink:#E4EAF0; --body:#C6D1DB; --muted:#8F9DAA; --faint:#6E7D8A;
+    --rule:#232E37; --hair:#1C252D;
+    --azurite:#5FA6DA; --azurite-soft:#152836; --azurite-ink:#8CC2E8;
+    --oxide:#DC8A5E; --oxide-soft:#2A1D16;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--ground); color:var(--body);
+    font-family:var(--serif); font-size:17px; line-height:1.62;
+    margin:0; padding:0 1.25rem 6rem;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:53rem; margin:0 auto}
+  .col{max-width:34rem}
+
+  /* ---- masthead ---- */
+  header{
+    padding:3.5rem 0 2rem; border-bottom:1px solid var(--rule);
+    display:flex; flex-direction:column; gap:1.1rem;
+  }
+  .eyebrow{
+    font-family:var(--sans); font-size:.66rem; font-weight:600;
+    letter-spacing:.16em; text-transform:uppercase; color:var(--azurite);
+  }
+  h1{
+    font-family:var(--serif); font-weight:600; color:var(--ink);
+    font-size:clamp(2.1rem,5.2vw,3.1rem); line-height:1.08;
+    letter-spacing:-.015em; margin:0; text-wrap:balance;
+  }
+  .standfirst{font-size:1.12rem; color:var(--muted); max-width:36rem; margin:0}
+  .byline{
+    font-family:var(--sans); font-size:.75rem; color:var(--faint);
+    letter-spacing:.02em; display:flex; flex-wrap:wrap; gap:.5rem 1.1rem;
+  }
+
+  /* ---- ledger ---- */
+  .ledger{margin:2.5rem 0 0; display:flex; flex-direction:column; gap:0}
+  .row{
+    display:grid; grid-template-columns:1.6rem 1fr auto; gap:1rem;
+    align-items:baseline; padding:1rem 0; border-bottom:1px solid var(--hair);
+  }
+  .row:first-child{border-top:1px solid var(--hair)}
+  .tag{font-family:var(--sans); font-weight:700; font-size:.8rem; color:var(--azurite)}
+  .claim{color:var(--ink)}
+  .claim small{display:block; color:var(--muted); font-size:.92rem; margin-top:.15rem}
+  .verdict{
+    font-family:var(--sans); font-size:.68rem; font-weight:700;
+    letter-spacing:.1em; text-transform:uppercase; white-space:nowrap;
+    padding:.24rem .55rem; border:1px solid currentColor;
+  }
+  .v-proved{color:var(--azurite)}
+  .v-false{color:var(--oxide)}
+
+  /* ---- sections ---- */
+  section{padding-top:3.4rem}
+  .sechead{display:flex; gap:1rem; align-items:baseline; margin-bottom:1.4rem}
+  .secnum{
+    font-family:var(--mono); font-size:.8rem; color:var(--faint);
+    padding-top:.35rem; min-width:1.6rem;
+  }
+  h2{
+    font-family:var(--serif); font-weight:600; color:var(--ink);
+    font-size:1.6rem; line-height:1.2; letter-spacing:-.01em; margin:0;
+    text-wrap:balance;
+  }
+  h3{
+    font-family:var(--sans); font-weight:650; color:var(--ink);
+    font-size:.82rem; letter-spacing:.06em; text-transform:uppercase;
+    margin:2.2rem 0 .7rem;
+  }
+  p{margin:0 0 1.05rem}
+  .body-indent{padding-left:2.6rem}
+  @media (max-width:640px){.body-indent{padding-left:0}}
+
+  i,var{font-style:italic}
+  .m{font-family:var(--serif); font-style:italic}
+  code{
+    font-family:var(--mono); font-size:.86em; color:var(--azurite-ink);
+    background:var(--azurite-soft); padding:.08em .34em; border-radius:2px;
+  }
+  a{color:var(--azurite); text-decoration:underline; text-underline-offset:.18em;
+    text-decoration-thickness:.06em}
+  a:focus-visible{outline:2px solid var(--azurite); outline-offset:3px}
+
+  /* ---- result block ---- */
+  .result{
+    background:var(--surface); border:1px solid var(--rule);
+    border-left:3px solid var(--azurite); padding:1.3rem 1.5rem;
+    margin:1.6rem 0 1.6rem;
+  }
+  .result.neg{border-left-color:var(--oxide)}
+  .result .lab{
+    font-family:var(--sans); font-size:.68rem; font-weight:700;
+    letter-spacing:.12em; text-transform:uppercase; color:var(--azurite);
+    display:block; margin-bottom:.5rem;
+  }
+  .result.neg .lab{color:var(--oxide)}
+  .result p:last-child{margin-bottom:0}
+  .display{
+    font-family:var(--mono); font-size:.92rem; color:var(--ink);
+    background:var(--sunk); border:1px solid var(--hair);
+    padding:.85rem 1rem; margin:1.1rem 0; overflow-x:auto; line-height:1.7;
+  }
+
+  /* ---- figure ---- */
+  figure{margin:2rem 0; background:var(--surface); border:1px solid var(--rule); padding:1.5rem}
+  .dials{display:flex; flex-wrap:wrap; gap:.9rem 1.4rem; justify-content:center}
+  .dial{display:flex; flex-direction:column; align-items:center; gap:.45rem}
+  .dial figcaption, .dial .cap{
+    font-family:var(--mono); font-size:.72rem; color:var(--muted);
+    font-variant-numeric:tabular-nums;
+  }
+  figcaption.note{
+    font-family:var(--sans); font-size:.82rem; color:var(--muted);
+    margin-top:1.2rem; line-height:1.55; text-align:left;
+  }
+  .swatchkey{
+    display:flex; flex-wrap:wrap; gap:.4rem 1.3rem; justify-content:center;
+    font-family:var(--sans); font-size:.74rem; color:var(--muted); margin-top:1.1rem;
+  }
+  .swatchkey span{display:flex; align-items:center; gap:.4rem}
+  .dot{width:9px; height:9px; border-radius:50%; display:inline-block}
+  .dot.f{background:var(--azurite)}
+  .dot.s{background:transparent; border:1.5px solid var(--oxide)}
+
+  /* ---- tables ---- */
+  .tablewrap{overflow-x:auto; margin:1.4rem 0}
+  table{border-collapse:collapse; width:100%; font-size:.9rem}
+  th,td{
+    text-align:left; padding:.5rem .8rem .5rem 0;
+    border-bottom:1px solid var(--hair); vertical-align:baseline;
+  }
+  th{
+    font-family:var(--sans); font-size:.68rem; font-weight:700;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--faint);
+    border-bottom:1px solid var(--rule); white-space:nowrap;
+  }
+  td.num{font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:nowrap}
+  td.ok{font-family:var(--sans); font-size:.78rem; color:var(--azurite); font-weight:600}
+
+  /* ---- witness callout ---- */
+  .witness{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));
+    gap:1px; background:var(--rule); border:1px solid var(--rule); margin:1.6rem 0;
+  }
+  .witness div{background:var(--surface); padding:1rem 1.1rem}
+  .witness .k{
+    font-family:var(--sans); font-size:.66rem; font-weight:700; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--faint); display:block; margin-bottom:.35rem;
+  }
+  .witness .v{
+    font-family:var(--mono); font-size:1.25rem; color:var(--ink);
+    font-variant-numeric:tabular-nums;
+  }
+  .witness .v.bad{color:var(--oxide)}
+
+  ul{margin:0 0 1.05rem; padding-left:1.1rem}
+  li{margin-bottom:.45rem}
+  footer{
+    margin-top:4rem; padding-top:1.6rem; border-top:1px solid var(--rule);
+    font-family:var(--sans); font-size:.8rem; color:var(--faint); line-height:1.6;
+  }
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">Multiplier cyclic sieving on necklaces</div>
+  <h1>The Crystallographic Criterion</h1>
+  <p class="standfirst">A sieving rule verified to <span class="m">n</span>&nbsp;=&nbsp;115 but never proved is now a theorem — in full generality. One of the hypotheses it leaned on turns out to be false, and the first multiplier that notices sits just past where anyone had looked.</p>
+  <div class="byline">
+    <span>13 August 2026</span>
+    <span>Exact integer arithmetic throughout — no floating point enters any decision</span>
+  </div>
+</header>
+
+<div class="ledger">
+  <div class="row">
+    <span class="tag">A</span>
+    <span class="claim">Fixed necklaces collapse to fixed words
+      <small>#Fix<sub>necklaces</sub>(<span class="m">v</span>) = #Fix<sub>words</sub>(<span class="m">v</span>)&thinsp;/&thinsp;<span class="m">f</span>, for every colouring, with no hypotheses at all</small></span>
+    <span class="verdict v-proved">Proved</span>
+  </div>
+  <div class="row">
+    <span class="tag">B</span>
+    <span class="claim">The criterion is a statement about a subgroup
+      <small>The non-generic points form a cyclic subgroup of crystallographic order, with <span class="m">v</span> acting as ±1</small></span>
+    <span class="verdict v-proved">Proved</span>
+  </div>
+  <div class="row">
+    <span class="tag">C</span>
+    <span class="claim">The criterion is sufficient
+      <small>The paper's main open problem — and without its uniformity hypothesis</small></span>
+    <span class="verdict v-proved">Proved</span>
+  </div>
+  <div class="row">
+    <span class="tag">D</span>
+    <span class="claim">Hypothesis 3.6 is false
+      <small>67 counterexamples with <span class="m">m</span> ≤ 60; the smallest is <span class="m">m</span>&nbsp;=&nbsp;9, <span class="m">r</span>&nbsp;=&nbsp;8, <span class="m">s</span>&nbsp;=&nbsp;4, where the ratio is exactly −1</small></span>
+    <span class="verdict v-false">Disproved</span>
+  </div>
+</div>
+
+<section>
+  <div class="sechead"><span class="secnum">§1</span><h2>The setting</h2></div>
+  <div class="body-indent col">
+    <p>Colour the positions of <code>Z/n</code> with <span class="m">k</span> black beads and quotient by rotation: these are necklaces. Rotation now acts trivially, but the <em>multipliers</em> <span class="m">x</span> ↦ <span class="m">vx</span> survive. The question is when the natural <span class="m">q</span>-analogue</p>
+    <div class="display">Y(q) = [n choose k]_q / [n]_q</div>
+    <p>evaluated at a root of unity counts the necklaces a multiplier leaves fixed. Writing <span class="m">m</span> for the order of <span class="m">v</span> and <code>f_e = gcd(v^e − 1, n)</code> for the number of points <span class="m">v<sup>e</sup></span> holds still, the criterion asks that for every proper divisor <span class="m">e</span> of <span class="m">m</span>:</p>
+    <div class="display">f_e ∈ {1, 2, 3, 4, 6}    and    rad(f_e) | m</div>
+    <p>The first condition is the crystallographic restriction — the same list that constrains rotational symmetries of a lattice. It was known to be forced, and the whole criterion had been verified exhaustively, but sufficiency was open.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><span class="secnum">§2</span><h2>The collapse</h2></div>
+  <div class="body-indent col">
+    <p>Everything follows from one observation about the affine maps <span class="m">A<sub>c</sub></span>(<span class="m">y</span>) = <span class="m">vy</span> + <span class="m">c</span>, which are what a multiplier looks like once you forget where a necklace was cut.</p>
+  </div>
+
+  <div class="body-indent">
+    <div class="result">
+      <span class="lab">Theorem A · unconditional</span>
+      <p>Every <span class="m">v</span>-fixed necklace has <em>exactly</em> <span class="m">f</span> = gcd(<span class="m">v</span>−1, <span class="m">n</span>) representatives fixed by <span class="m">v</span> as words. Hence</p>
+      <div class="display">#Fix_necklaces(v) = (1/f) · [z^k] ∏_{d|m} (1 + z^d)^{n_d}</div>
+      <p>for any colour content with gcd&nbsp;1 — no uniformity, no criterion, no conditions.</p>
+    </div>
+  </div>
+
+  <div class="body-indent col">
+    <p>The proof is four lines. If <span class="m">ℓ</span> is any cycle length of <span class="m">A<sub>c</sub></span> then <span class="m">A<sub>c</sub><sup>ℓ</sup></span> has a fixed point, so <code>f_l | c·S_l</code>; since <span class="m">f</span> divides <span class="m">f<sub>ℓ</sub></span> and <span class="m">v</span> ≡ 1 (mod <span class="m">f</span>) gives <span class="m">S<sub>ℓ</sub></span> ≡ <span class="m">ℓ</span>, we get <span class="m">f</span> | <span class="m">cℓ</span>. So <span class="m">e<sub>c</sub></span> = <span class="m">f</span>/gcd(<span class="m">f</span>,<span class="m">c</span>) divides <em>every</em> cycle length. If <span class="m">f</span> ∤ <span class="m">c</span>, a prime <span class="m">p</span> | <span class="m">e<sub>c</sub></span> then divides every cycle length, hence every colour class, hence gcd(<span class="m">α</span>) = 1 — impossible.</p>
+    <p>This replaces the previous counting lemma, which summed over a whole set of affine maps. It identifies which ones contribute, shows they contribute equally, and reduces the subject to cycle-index bookkeeping for a single permutation.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><span class="secnum">§3</span><h2>What the criterion really says</h2></div>
+  <div class="body-indent col">
+    <p>Let <span class="m">P</span> be the set of points whose <span class="m">v</span>-orbit is shorter than <span class="m">m</span>. A short argument on incomparable pairs — the only obstructions are {2,3}, {3,4} and {4,6}, and each dies on parity or on the order of <span class="m">v</span> mod 3 — shows these nested subgroups are totally ordered.</p>
+  </div>
+
+  <div class="body-indent">
+    <div class="result">
+      <span class="lab">Theorem B · structure</span>
+      <p>Under the criterion, <span class="m">P</span> is exactly the cyclic subgroup <span class="m">C<sub>L</sub></span> of order <span class="m">L</span> ∈ {1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;6} with rad(<span class="m">L</span>) | <span class="m">m</span>, and <span class="m">v</span> acts on it as +1 or −1.</p>
+    </div>
+  </div>
+
+  <div class="body-indent col">
+    <p>The reason ±1 is the only option is that Aut(<span class="m">C<sub>L</sub></span>) has order <span class="m">φ</span>(<span class="m">L</span>) ≤ 2 — which is the crystallographic restriction, arriving a second time and from a different direction. That leaves exactly eight shapes, and all eight occur.</p>
+  </div>
+
+  <figure>
+    <div class="dials">
+      <div class="dial">
+        <svg width="76" height="76" viewBox="-38 -38 76 76" role="img" aria-label="L equals 1, one fixed point">
+          <circle cx="0" cy="0" r="27" fill="none" stroke="var(--hair)" stroke-width="1"/>
+          <circle cx="0" cy="-27" r="4.5" fill="var(--azurite)"/>
+        </svg>
+        <span class="cap">L=1 &nbsp;ε=+</span>
+      </div>
+      <div class="dial">
+        <svg width="76" height="76" viewBox="-38 -38 76 76" role="img" aria-label="L equals 2, two fixed points">
+          <circle cx="0" cy="0" r="27" fill="none" stroke="var(--hair)" stroke-width="1"/>
+          <circle cx="0" cy="-27" r="4.5" fill="var(--azurite)"/>
+          <circle cx="0" cy="27" r="4.5" fill="var(--azurite)"/>
+        </svg>
+        <span class="cap">L=2 &nbsp;ε=+</span>
+      </div>
+      <div class="dial">
+        <svg width="76" height="76" viewBox="-38 -38 76 76" role="img" aria-label="L equals 3, three fixed points">
+          <circle cx="0" cy="0" r="27" fill="none" stroke="var(--hair)" stroke-width="1"/>
+          <circle cx="0" cy="-27" r="4.5" fill="var(--azurite)"/>
+          <circle cx="23.4" cy="13.5" r="4.5" fill="var(--azurite)"/>
+          <circle cx="-23.4" cy="13.5" r="4.5" fill="var(--azurite)"/>
+        </svg>
+        <span class="cap">L=3 &nbsp;ε=+</span>
+      </div>
+      <div class="dial">
+        <svg width="76" height="76" viewBox="-38 -38 76 76" role="img" aria-label="L equals 3, one fixed point and one two-cycle">
+          <circle cx="0" cy="0" r="27" fill="none" stroke="var(--hair)" stroke-width="1"/>
+          <path d="M 23.4 13.5 L -23.4 13.5" stroke="var(--oxide)" stroke-width="1.4" fill="none"/>
+          <circle cx="0" cy="-27" r="4.5" fill="var(--azurite)"/>
+          <circle cx="23.4" cy="13.5" r="4" fill="var(--surface)" stroke="var(--oxide)" stroke-width="1.6"/>
+          <circle cx="-23.4" cy="13.5" r="4" fill="var(--surface)" stroke="var(--oxide)" stroke-width="1.6"/>
+        </svg>
+        <span class="cap">L=3 &nbsp;ε=−</span>
+      </div>
+      <div class="dial">
+        <svg width="76" height="76" viewBox="-38 -38 76 76" role="img" aria-label="L equals 4, four fixed points">
+          <circle cx="0" cy="0" r="27" fill="none" stroke="var(--hair)" stroke-width="1"/>
+          <circle cx="0" cy="-27" r="4.5" fill="var(--azurite)"/>
+          <circle cx="27" cy="0" r="4.5" fill="var(--azurite)"/>
+          <circle cx="0" cy="27" r="4.5" fill="var(--azurite)"/>
+          <circle cx="-27" cy="0" r="4.5" fill="var(--azurite)"/>
+        </svg>
+        <span class="cap">L=4 &nbsp;ε=+</span>
+      </div>
+      <div class="dial">
+        <svg width="76" height="76" viewBox="-38 -38 76 76" role="img" aria-label="L equals 4, two fixed points and one two-cycle">
+          <circle cx="0" cy="0" r="27" fill="none" stroke="var(--hair)" stroke-width="1"/>
+          <path d="M 27 0 L -27 0" stroke="var(--oxide)" stroke-width="1.4" fill="none"/>
+          <circle cx="0" cy="-27" r="4.5" fill="var(--azurite)"/>
+          <circle cx="0" cy="27" r="4.5" fill="var(--azurite)"/>
+          <circle cx="27" cy="0" r="4" fill="var(--surface)" stroke="var(--oxide)" stroke-width="1.6"/>
+          <circle cx="-27" cy="0" r="4" fill="var(--surface)" stroke="var(--oxide)" stroke-width="1.6"/>
+        </svg>
+        <span class="cap">L=4 &nbsp;ε=−</span>
+      </div>
+      <div class="dial">
+        <svg width="76" height="76" viewBox="-38 -38 76 76" role="img" aria-label="L equals 6, six fixed points">
+          <circle cx="0" cy="0" r="27" fill="none" stroke="var(--hair)" stroke-width="1"/>
+          <circle cx="0" cy="-27" r="4.5" fill="var(--azurite)"/>
+          <circle cx="23.4" cy="-13.5" r="4.5" fill="var(--azurite)"/>
+          <circle cx="23.4" cy="13.5" r="4.5" fill="var(--azurite)"/>
+          <circle cx="0" cy="27" r="4.5" fill="var(--azurite)"/>
+          <circle cx="-23.4" cy="13.5" r="4.5" fill="var(--azurite)"/>
+          <circle cx="-23.4" cy="-13.5" r="4.5" fill="var(--azurite)"/>
+        </svg>
+        <span class="cap">L=6 &nbsp;ε=+</span>
+      </div>
+      <div class="dial">
+        <svg width="76" height="76" viewBox="-38 -38 76 76" role="img" aria-label="L equals 6, two fixed points and two two-cycles">
+          <circle cx="0" cy="0" r="27" fill="none" stroke="var(--hair)" stroke-width="1"/>
+          <path d="M 23.4 -13.5 L -23.4 -13.5" stroke="var(--oxide)" stroke-width="1.4" fill="none"/>
+          <path d="M 23.4 13.5 L -23.4 13.5" stroke="var(--oxide)" stroke-width="1.4" fill="none"/>
+          <circle cx="0" cy="-27" r="4.5" fill="var(--azurite)"/>
+          <circle cx="0" cy="27" r="4.5" fill="var(--azurite)"/>
+          <circle cx="23.4" cy="-13.5" r="4" fill="var(--surface)" stroke="var(--oxide)" stroke-width="1.6"/>
+          <circle cx="-23.4" cy="-13.5" r="4" fill="var(--surface)" stroke="var(--oxide)" stroke-width="1.6"/>
+          <circle cx="23.4" cy="13.5" r="4" fill="var(--surface)" stroke="var(--oxide)" stroke-width="1.6"/>
+          <circle cx="-23.4" cy="13.5" r="4" fill="var(--surface)" stroke="var(--oxide)" stroke-width="1.6"/>
+        </svg>
+        <span class="cap">L=6 &nbsp;ε=−</span>
+      </div>
+    </div>
+    <div class="swatchkey">
+      <span><i class="dot f"></i>fixed point of <span class="m">v</span></span>
+      <span><i class="dot s"></i>two-cycle, joined by its chord</span>
+    </div>
+    <figcaption class="note">The eight admissible shapes of the non-generic part. Confirmed across 19,820 criterion-satisfying multipliers with <span class="m">n</span> ≤ 400 — every one lands on one of these eight, and all eight are realised.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="sechead"><span class="secnum">§4</span><h2>Why sufficiency holds</h2></div>
+  <div class="body-indent col">
+    <p>Split the fixed-word generating function into the small orbits and the generic ones, <span class="m">N</span>(<span class="m">z</span>) = <span class="m">Q</span>(<span class="m">z</span>)·(1 + <span class="m">z<sup>m</sup></span>)<sup><span class="m">n<sub>m</sub></span></sup>. Theorem B says <span class="m">Q</span> is the product of (1 + <span class="m">z</span><sup>|<span class="m">O</span>|</sup>) over the orbits inside <span class="m">C<sub>L</sub></span>, so two facts drop out for free:</p>
+    <div class="display">deg Q = L,  Q palindromic,  [z^1] Q = f  ⟹  [z^{L−1}] Q = f</div>
+    <p>Meanwhile a residue <span class="m">s</span> = <span class="m">k</span> mod <span class="m">m</span> can occur at all only if it is coprime to rad(<span class="m">L</span>), because gcd(<span class="m">n</span>,<span class="m">k</span>) = 1. For <span class="m">L</span> ∈ {2,3,4,6} the surviving residues in [0,&nbsp;<span class="m">L</span>] are precisely <span class="m">s</span> ∈ {1, <span class="m">L</span>−1} — every other value shares a prime with <span class="m">L</span>. <em>That sentence is true exactly when <span class="m">φ</span>(<span class="m">L</span>) ≤ 2.</em></p>
+    <p>And at those two residues the <span class="m">q</span>-binomial ratio is 1, since <code>[L choose 1]_q = [L choose L−1]_q = [L]_q</code>. So both sides equal <span class="m">f</span>, and after a Vandermonde split for the case <span class="m">m</span> | <span class="m">n</span> the identity closes.</p>
+  </div>
+
+  <div class="body-indent">
+    <div class="result">
+      <span class="lab">Theorem C · the open problem</span>
+      <p>The criterion implies <span class="m">Y</span>(<span class="m">ζ<sub>m</sub></span>) = #{necklaces fixed by <span class="m">v</span>} for every <span class="m">k</span> coprime to <span class="m">n</span> — for all multipliers, dropping the uniformity hypothesis under which the statement had previously been analysed.</p>
+    </div>
+    <div class="body-indent col" style="padding-left:0">
+      <p>The whole proof, in one line: <em><span class="m">Q</span> is palindromic of degree <span class="m">L</span> with linear coefficient <span class="m">f</span>, and the achievable residues are exactly {1, <span class="m">L</span>−1}.</em> The crystallographic list is not an input to the argument; it is what the residue condition means.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><span class="secnum">§5</span><h2>A hypothesis that is false</h2></div>
+  <div class="body-indent col">
+    <p>The paper carried an unproved irrationality claim (its Hypothesis 3.6): for 2 ≤ <span class="m">r</span> &lt; <span class="m">m</span> and the bad residues <span class="m">s</span>, the ratio <code>[r choose s]_ζ / [r]_ζ</code> is never rational. It is not true.</p>
+    <p>Complex conjugation gives a sharp handle. Since <code>[r choose s]_{q⁻¹} = q^{−s(r−s)}[r choose s]_q</code> and <code>[r]_{q⁻¹} = q^{1−r}[r]_q</code>, rationality forces</p>
+    <div class="display">m | r − 1 − s(r − s)</div>
+    <p>which is provable, and cuts the search enormously. Running it turns up 67 counterexamples with <span class="m">m</span> ≤ 60. Every single one has <span class="m">r</span> = <span class="m">m</span> − 1, and every value is ±1 — as it must be, because there the ratio evaluates exactly to (−1)<sup><span class="m">s</span>+1</sup><span class="m">ζ</span><sup>1−<span class="m">s</span>(<span class="m">s</span>+1)/2</sup>.</p>
+    <p>The same argument does rescue the two easiest residues: <span class="m">s</span> ∈ {0, <span class="m">r</span>} needs only that <code>[r]_ζ</code> is irrational for 2 ≤ <span class="m">r</span> &lt; <span class="m">m</span>, and conjugation proves that outright.</p>
+  </div>
+
+  <div class="body-indent">
+    <div class="result neg">
+      <span class="lab">Where it bites</span>
+      <p>The necessity argument invokes the hypothesis whenever a bad residue is achievable, and that step is invalid exactly when <span class="m">r</span> = <span class="m">m</span> − 1. The first multiplier where this actually happens:</p>
+      <div class="witness">
+        <div><span class="k">multiplier</span><span class="v">n=99, v=19</span></div>
+        <div><span class="k">order · fixed pts</span><span class="v">m=10, f=9</span></div>
+        <div><span class="k">Y at k=13</span><span class="v bad">−9</span></div>
+        <div><span class="k">true count</span><span class="v">84</span></div>
+      </div>
+      <p>The polynomial evaluates to a perfectly rational — indeed negative — integer, and simply gives the wrong answer. Sieving does still fail here, so the criterion stands; but it fails for a reason the old proof could not have given. Note <span class="m">n</span> = 99 sits just beyond the range <span class="m">n</span> ≤ 96 over which the criterion had been checked, which is why neither the proof nor the computation caught it.</p>
+    </div>
+  </div>
+
+  <div class="body-indent col">
+    <p>A clean replacement is available and weaker than what was assumed: <em>if the ratio is rational then it has modulus 1</em>. That is proved whenever <span class="m">r</span> = <span class="m">m</span> − 1, holds in every case computed, and is enough — because a fixed-point count of <code>C(f,s)/f</code> is at least (<span class="m">f</span>−1)/2 &gt; 1 at any bad residue.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><span class="secnum">§6</span><h2>Verification</h2></div>
+  <div class="body-indent">
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Claim</th><th>Range</th><th>Checks</th><th>Failures</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Theorem A, two colours — criterion <em>not</em> assumed</td><td class="num">n ≤ 60</td><td class="num">29,780</td><td class="ok">0</td></tr>
+          <tr><td>Theorem A, three colours, all contents</td><td class="num">n ≤ 28</td><td class="num">34,186</td><td class="ok">0</td></tr>
+          <tr><td>Theorem B, structure of the non-generic part</td><td class="num">n ≤ 400</td><td class="num">19,820</td><td class="ok">0</td></tr>
+          <tr><td>Theorem C, coefficient identity</td><td class="num">n ≤ 200</td><td class="num">1,048,609</td><td class="ok">0</td></tr>
+          <tr><td>Theorem C, end-to-end sieving identity</td><td class="num">n ≤ 48</td><td class="num">11,578</td><td class="ok">0</td></tr>
+          <tr><td>Proposition D, conjugation congruence</td><td class="num">m ≤ 60</td><td class="num">all r, s</td><td class="ok">0</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col">
+      <p>Both sides are computed by independent routes and cross-checked against brute-force necklace enumeration. Every decision is made in exact integer or cyclotomic arithmetic.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><span class="secnum">§7</span><h2>What is still open</h2></div>
+  <div class="body-indent col">
+    <ul>
+      <li><strong>Necessity</strong> in the general, non-uniform multi-level case — verified, not proved. Sufficiency is now done.</li>
+      <li><strong>The residual irrationality claim:</strong> for 2 ≤ <span class="m">r</span> ≤ <span class="m">m</span> − 2, is the ratio always irrational at the bad residues? Verified to <span class="m">m</span> ≤ 60 with the congruence above as a sieve.</li>
+      <li><strong>Three colours are strictly stronger.</strong> At <span class="m">n</span> = 28 the two-colour sieving holds where the three-colour version fails. Theorem A holds verbatim for every content, so the discrepancy lives entirely on the <span class="m">q</span>-analogue side — not in the counting.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  Reproduce with <code>python3 verify.py</code> — every claim above, in a few seconds — or <code>python3 verify.py --full</code> for the published ranges. Flat Python 3, standard library only.
+</footer>
+</div>
