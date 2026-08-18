@@ -35,6 +35,8 @@
 
 \author{}
 \date{13 August 2026}
+\thanks{Prepared in collaboration with an artificial-intelligence system (Claude, Anthropic);
+see the note on the use of artificial intelligence at the end of this paper.}
 
 \begin{abstract}
 Knuth's \emph{Fibonacci multiplication} $n\circ m=\sum_{i,j}F_{k_i+l_j}$, defined on Zeckendorf
@@ -569,6 +571,23 @@ long-range scans of Observation \ref{obs:fail} for $s\le20$; Lemma \ref{lem:mult
 assertions about $2\varphi\notin S$ used after Observation \ref{obs:notupset}; and
 Proposition \ref{prop:trace} for the two systems named there. The script terminates with
 \texttt{ALL CHECKS PASSED} and reports no failures.
+
+\section*{Note on the use of artificial intelligence}
+
+This paper was prepared in collaboration with an artificial-intelligence system (Claude, Anthropic).
+Knuth's theorem on Fibonacci multiplication and the extensions of it in the works cited below are
+not ours; what is contributed here---the transport identity (Theorem~\ref{thm:transport}), the
+identification of associativity with closure and its closed-form obstruction
+(Theorem~\ref{thm:criterion}, \eqref{eq:obstruction}), the phenomena outside the canonical case of
+\S\ref{sec:phenomena}, including the failure of upward-closedness for the Lucas system
+(Proposition~\ref{prop:lucas}, Observation~\ref{obs:notupset}) and the minimal certificates of
+Proposition~\ref{prop:others}, and the verification script of \S\ref{sec:verification}---was found,
+drafted and checked in that collaboration.
+
+No result here rests on machine assertion. Every proof is stated so as to be checkable by hand, and
+every finite claim is reproducible by running \texttt{verify.py}, whose arithmetic is exact and
+which terminates with \texttt{ALL CHECKS PASSED}. The questions raised in the paper are reported as
+open exactly as they stand.
 
 \begin{thebibliography}{99}
 
